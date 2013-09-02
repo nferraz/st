@@ -28,18 +28,19 @@ If you ask around, you'll come up with suggestions like these:
     $ awk '{s+=$1} END {print s}' numbers.txt
     55
 
-    $ perl -lne '$x += $_; END { print $x; }' < numbers.txt
+    $ perl -lne '$x += $_; END { print $x; }' numbers.txt
     55
 
     $ sum=0; while read num ; do sum=$(($sum + $num)); done < numbers.txt ; echo $sum
     55
 
+    $ paste -sd+ numbers.txt | bc
+
 Now imagine that you need something more complex!
 
 #### Using st
 
-"st" is a simple command-line tool to perform simple statistical
-calculations from the command line.
+"st" is a command-line tool to perform simple statistical calculations.
 
 Let's start with "sum":
 
@@ -54,14 +55,14 @@ How about mean and standard deviation?
     mean  sd
     5.50  3.03
 
-Or perhaps you want a five-number summary:
+Or perhaps you want a five-number summary of the entire set:
 
     $ st --summary numbers.txt
     min   q1    median  q3    max
     1.00  3.50  5.50    7.50  10.00
 
-Finally, if you don't specify any command line options, you'll get
-this useful output:
+Finally, if you don't specify any command line options, you'll get this
+useful output:
 
     $ st numbers.txt
     count  min   max   sum   mean  sd
@@ -72,11 +73,15 @@ this useful output:
 "R" is an integrated suite of software facilities for data manipulation,
 calculation and graphical display.
 
-"st" is focused exclusively on descriptive statistics, and to be
-used from the traditional shell, so you can use pipes, etc.
+It provides a wide variety of statistical (linear and nonlinear modelling,
+statistical tests, time-series analysis, classification, clustering, ...).
 
-This just the beginning! Let me know if you have any suggestions
-or feedback.
+"st" is a simpler solution for simple problems, focused on descriptive
+statistics and the command line, so you can use it alongside with other
+commands in your shell.
+
+This just the beginning! Let me know if you have any suggestions or
+feedback.
 
 #### More information
 
