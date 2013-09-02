@@ -35,8 +35,10 @@ If you ask around, you'll come up with suggestions like these:
     55
 
     $ paste -sd+ numbers.txt | bc
+    55
 
-Now imagine that you need something more complex!
+Now imagine that you need to calculate a simple arithmetic mean, or a
+standard deviation...
 
 #### Using st
 
@@ -61,7 +63,7 @@ Or perhaps you want a five-number summary of the entire set:
     min   q1    median  q3    max
     1.00  3.50  5.50    7.50  10.00
 
-Finally, if you don't specify any command line options, you'll get this
+Finally, if you don't specify command line options, you'll get this
 useful output:
 
     $ st numbers.txt
