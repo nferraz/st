@@ -1,0 +1,192 @@
+#!/usr/bin/env perl -T
+
+use strict;
+use warnings;
+
+use Getopt::Long;
+use Pod::Usage;
+
+my %opt;
+GetOptions(
+  \%opt,
+  'count|n',
+  'max',
+  'mean|avg|m',
+  'median',
+  'min',
+  'mode',
+  'percentile|p=i',
+  'quantile|q=i',
+  'sd|stdev',
+  'sum|s',
+  'summary',
+  'var|variance',
+  'delimiter|d=s',
+  'format|fmt|f=s',
+  'help|h',
+) or pod2usage(1);
+
+pod2usage(1) if $opt{help};
+
+my ($min,$max,$sum,$sum_square,$count,%count,@data);
+my $_max_count;
+
+my $use_percentiles = (
+       defined $opt{median}
+    || defined $opt{percentile}
+    || defined $opt{quantile}
+    || defined $opt{summary}
+);
+
+while (my $num = <>) {
+  chomp $num;
+  if ($use_percentiles) {
+    push @data, $num;
+  }
+  $count{$num}++;
+  $_max_count = $count{$num} if (!defined $_max_count or $count{$num} > $_max_count);
+  $min = $num if (!defined $min or $num < $min);
+  $max = $num if (!defined $max or $num > $max);
+  $sum += $num;
+  $sum_square += $num ** 2;
+  $count++;
+}
+
+if ($use_percentiles) {
+  @data = sort { $a <=> $b } @data;
+}
+
+my ( %summary, $percentile, $quantile, $median );
+if ( $opt{summary} ) {
+  %summary = (
+    min    => $min,
+    q1     => percentile( 25, \@data ),
+    median => percentile( 50, \@data ),
+    q3     => percentile( 75, \@data ),
+    max    => $max,
+  );
+} else {
+  $percentile = percentile( $opt{percentile}, \@data )  if defined $opt{percentile};
+  $quantile   = percentile( $opt{quantile}*25, \@data ) if defined $opt{quantile};
+  $median     = percentile( 50, \@data )                if defined $opt{median};
+}
+
+my $variance = $count > 1 ? ($sum_square - ($sum**2/$count)) / ($count-1) : undef;
+my $sd       = defined $variance ? sqrt($variance) : undef;
+
+my @mode = grep { $count{$_} == $_max_count } keys %count;
+
+my $mode = scalar @mode == 1 ? $mode[0] : undef; # don't deal with multimodes
+
+my %st = (
+  count      => $count,
+  max        => $max,
+  mean       => $sum / $count,
+  median     => $median,
+  min        => $min,
+  mode       => $mode,
+  percentile => $percentile,
+  quantile   => $quantile,
+  sd         => $sd,
+  sum        => $sum,
+  variance   => $variance,
+  %summary,
+);
+
+my $delimiter = delete $opt{delimiter} || "\t";
+my $format    = delete $opt{format}    || '%.2f';
+
+my $summary   = delete $opt{summary};
+
+my @opt = %opt      ? sort keys %opt
+        : $summary  ? qw/ min q1 median q3 max /
+                    : qw/ count min max sum mean sd /;
+
+@opt = grep { defined $st{$_} } @opt;
+
+if (scalar @opt == 1) {
+  print "$st{$opt[0]}\n";
+  exit;
+}
+
+print join($delimiter, @opt), "\n";
+print join($delimiter, map { sprintf ($format, $st{$_}) } @opt), "\n";
+exit;
+
+###
+
+sub percentile {
+  my ($p, $data) = @_;
+
+  if ($p < 0 or $p > 100) {
+    die "Invalid value for percentile\n";
+  }
+
+  my @data = sort { $a <=> $b } @{$data};
+
+  my $index = $p * $#data / 100;
+
+  my $percentile = $index == int($index) ? $data[$index]
+                                         : ($data[$index] + $data[$index+1]) / 2;
+
+  return $percentile;
+}
+
+__END__
+
+=head1 NAME
+
+st - descriptive statistics from the command line
+
+=head1 DESCRIPTION
+
+This script provides basic functions used in descriptive statistics.
+
+=head1 USAGE
+
+  st [options] <input_file>
+
+=head1 OPTIONS
+
+The following options are available:
+
+  --count|n
+  --max
+  --mean|avg|m
+  --median
+  --min
+  --mode
+  --sd|stdev
+  --sum|s
+  --var|variance
+
+  --percentile|p  # 0..100
+  --quantile|q    # 0..4
+
+  --summary
+
+The option C<--summary> will print the five-number summary:
+
+  min q1 median q3 max
+
+(Please note that calculating quantiles requires that we hold the complete set in memory.)
+
+If no options are used, C<st> will print:
+
+  count min max sum mean sd
+
+Finally, you can specify output format with:
+
+  --delimiter|d=<value>   # default: "\t"
+  --format|fmt|f=<value>  # default: "%.2f"
+
+=head1 AUTHOR
+
+Nelson Ferraz L<<nferraz@gmail.com>>
+
+=head1 COPYRIGHT
+
+Copyright (c) 2013 Nelson Ferraz.
+
+This program is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
