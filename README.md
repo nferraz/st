@@ -3,8 +3,7 @@ st
 
 descriptive statistics from the command line interface (CLI)
 
-Rationale
----------
+### Rationale
 
 Imagine you have this sample file:
 
@@ -22,7 +21,7 @@ Imagine you have this sample file:
 
 How do you calculate the sum of the numbers from the command line?
 
-### The traditional way
+#### The traditional way
 
 If you ask around, you'll come up with suggestions like these:
 
@@ -37,7 +36,7 @@ If you ask around, you'll come up with suggestions like these:
 
 Now imagine that you need something more complex!
 
-### Using st
+#### Using st
 
 "st" is a simple command-line tool to perform simple statistical
 calculations from the command line.
@@ -68,7 +67,7 @@ this useful output:
     count  min   max   sum   mean  sd
     10.00  1.00  10.00 55.00 5.50  3.03
 
-### How about "R" and other analytical tools?
+#### How about "R" and other analytical tools?
 
 "R" is an integrated suite of software facilities for data manipulation,
 calculation and graphical display.
@@ -79,7 +78,7 @@ used from the traditional shell, so you can use pipes, etc.
 This just the beginning! Let me know if you have any suggestions
 or feedback.
 
-### More information
+#### More information
 
 Type:
 
