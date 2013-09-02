@@ -6,7 +6,7 @@ descriptive statistics from the command line interface (CLI)
 Rationale
 ---------
 
-Given a sample file:
+Imagine you have this sample file:
 
     $ cat numbers.txt
     1
@@ -20,7 +20,7 @@ Given a sample file:
     9
     10
 
-How do you calculate the sum of the numbers from the command-line?
+How do you calculate the sum of the numbers from the command line?
 
 ### The traditional way
 
@@ -37,9 +37,10 @@ If you ask around, you'll come up with suggestions like these:
 
 Now imagine that you need something more complex!
 
-### Enters st
+### Using st
 
-"st" is a simple command-line tool to perform simple statistical calculations.
+"st" is a simple command-line tool to perform simple statistical
+calculations from the command line.
 
 Let's start with "sum":
 
@@ -60,8 +61,8 @@ Or perhaps you want a five-number summary:
     min   q1    median  q3    max
     1.00  3.50  5.50    7.50  10.00
 
-Finally, if you don't specify any command line options, you'll get this useful
-output:
+Finally, if you don't specify any command line options, you'll get
+this useful output:
 
     $ st numbers.txt
     count  min   max   sum   mean  sd
@@ -72,8 +73,14 @@ output:
 "R" is an integrated suite of software facilities for data manipulation,
 calculation and graphical display.
 
-"st" is focused exclusively on descriptive statistics, and to be used from
-the traditional shell, so you can use pipes, etc.
+"st" is focused exclusively on descriptive statistics, and to be
+used from the traditional shell, so you can use pipes, etc.
 
-This just the beginning! Let me know if you have any suggestions or feedback.
+This just the beginning! Let me know if you have any suggestions
+or feedback.
 
+### More information
+
+Type:
+
+    st --help
