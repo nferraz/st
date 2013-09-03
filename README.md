@@ -37,8 +37,8 @@ If you ask around, you'll come up with suggestions like these:
     $ paste -sd+ numbers.txt | bc
     55
 
-Now imagine that you need to calculate a simple arithmetic mean, or a
-standard deviation...
+Now imagine that you need to calculate the arithmetic mean, median,
+or standard deviation...
 
 #### Using st
 
@@ -78,15 +78,15 @@ calculation and graphical display.
 It provides a wide variety of statistical (linear and nonlinear modelling,
 statistical tests, time-series analysis, classification, clustering, ...).
 
-"st" is a simpler solution for simple problems, focused on descriptive
+"st" is an easier solution for simpler problems, focused on descriptive
 statistics and the command line, so you can use it alongside with other
-commands in your shell.
+commands in your shell (bash, sh).
 
 This just the beginning! Let me know if you have any suggestions or
 feedback.
 
-#### More information
+#### Documentation
 
-Type:
+For a list of options type:
 
     st --help
