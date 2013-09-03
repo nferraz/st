@@ -28,50 +28,66 @@ GetOptions(
 
 pod2usage(1) if $opt{help};
 
-my ($min,$max,$sum,$sum_square,$count,%count,@data);
-my $_max_count;
+my ($min,$max,$sum,$sum_square,$count,@data);
+my (%count, $most_common);
 
-my $use_percentiles = (
+# some functions require the full set
+my $keep_data = (
        defined $opt{median}
     || defined $opt{percentile}
     || defined $opt{quantile}
     || defined $opt{summary}
 );
 
+# some functions require frequencies
+my $keep_frequencies = (
+      defined $opt{mode}
+);
+
+# read data
 while (my $num = <>) {
   chomp $num;
-  if ($use_percentiles) {
+
+  if ($keep_data) {
     push @data, $num;
   }
-  $count{$num}++;
-  $_max_count = $count{$num} if (!defined $_max_count or $count{$num} > $_max_count);
+
+  if ($keep_frequencies) {
+    $count{$num}++;
+    $most_common = $count{$num} if (!defined $most_common or $count{$num} > $most_common);
+  }
+
   $min = $num if (!defined $min or $num < $min);
   $max = $num if (!defined $max or $num > $max);
+
   $sum += $num;
   $sum_square += $num ** 2;
+
   $count++;
 }
 
 my ( %summary, $percentile, $quantile, $median );
-if ( $opt{summary} ) {
-  my ($q1, $median, $q3) = percentiles(\@data, 25, 50, 75);
+if ( defined $opt{summary} ) {
+  my ($q1, $q2, $q3) = percentiles(\@data, 25, 50, 75);
   %summary = (
     min    => $min,
     q1     => $q1,
-    median => $median,
+    median => $q2,
     q3     => $q3,
     max    => $max,
   );
-} else {
-  ($percentile) = percentiles( \@data, $opt{percentile} )    if defined $opt{percentile};
-  ($quantile)   = percentiles( \@data, $opt{quantile} * 25 ) if defined $opt{quantile};
-  ($median)     = percentiles( \@data, 50 )                  if defined $opt{median};
+} elsif (defined $opt{percentile}) {
+  ($percentile) = percentiles( \@data, $opt{percentile} );
+} elsif (defined $opt{quantile}) {
+  ($quantile)   = percentiles( \@data, $opt{quantile} * 25 );
+} elsif (defined $opt{median}) {
+  ($median)     = percentiles( \@data, 50 );
 }
 
 my $variance = $count > 1 ? ($sum_square - ($sum**2/$count)) / ($count-1) : undef;
 my $sd       = defined $variance ? sqrt($variance) : undef;
 
-my @mode = grep { $count{$_} == $_max_count } keys %count;
+my @mode = grep { $count{$_} == $most_common } keys %count;
 
 my $mode = scalar @mode == 1 ? $mode[0] : undef; # don't deal with multimodes
 
