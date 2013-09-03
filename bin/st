@@ -52,23 +52,20 @@ while (my $num = <>) {
   $count++;
 }
 
-if ($use_percentiles) {
-  @data = sort { $a <=> $b } @data;
-}
-
 my ( %summary, $percentile, $quantile, $median );
 if ( $opt{summary} ) {
+  my ($q1, $median, $q3) = percentiles(\@data, 25, 50, 75);
   %summary = (
     min    => $min,
-    q1     => percentile( 25, \@data ),
-    median => percentile( 50, \@data ),
-    q3     => percentile( 75, \@data ),
+    q1     => $q1,
+    median => $median,
+    q3     => $q3,
     max    => $max,
   );
 } else {
-  $percentile = percentile( $opt{percentile}, \@data )  if defined $opt{percentile};
-  $quantile   = percentile( $opt{quantile}*25, \@data ) if defined $opt{quantile};
-  $median     = percentile( 50, \@data )                if defined $opt{median};
+  ($percentile) = percentiles( \@data, $opt{percentile} )    if defined $opt{percentile};
+  ($quantile)   = percentiles( \@data, $opt{quantile} * 25 ) if defined $opt{quantile};
+  ($median)     = percentiles( \@data, 50 )                  if defined $opt{median};
 }
 
 my $variance = $count > 1 ? ($sum_square - ($sum**2/$count)) / ($count-1) : undef;
@@ -115,21 +112,27 @@ exit;
 
 ###
 
-sub percentile {
-  my ($p, $data) = @_;
-
-  if ($p < 0 or $p > 100) {
-    die "Invalid value for percentile\n";
-  }
+sub percentiles {
+  my ($data, @p) = @_;
 
   my @data = sort { $a <=> $b } @{$data};
 
-  my $index = $p * $#data / 100;
+  my @percentiles = ();
+  for my $p (@p) {
 
-  my $percentile = $index == int($index) ? $data[$index]
-                                         : ($data[$index] + $data[$index+1]) / 2;
+    if ($p < 0 or $p > 100) {
+      die "Invalid percentile ($p)\n";
+    }
 
-  return $percentile;
+    my $index = $p * $#data / 100;
+
+    my $percentile = $index == int($index) ? $data[$index]
+                                           : ($data[$index] + $data[$index+1]) / 2;
+  
+    push @percentiles, $percentile;
+  }
+
+  return @percentiles;
 }
 
 __END__
