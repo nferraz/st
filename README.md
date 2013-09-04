@@ -82,6 +82,8 @@ statistics, handy when you need quick results without leaving the shell.
 
 Let me know if you have any suggestions or feedback!
 
+Nelson Ferraz <<nferraz@gmail.com>>
+
 #### Documentation
 
     man st
