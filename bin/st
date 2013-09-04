@@ -2,6 +2,7 @@
 
 use strict;
 use warnings;
+use bignum;
 
 use Getopt::Long;
 use Pod::Usage;
