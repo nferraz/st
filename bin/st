@@ -10,7 +10,7 @@ use Pod::Usage;
 my %opt;
 GetOptions(
   \%opt,
-  'count|n',
+  'N|n|count',
   'max',
   'mean|avg|m',
   'median',
@@ -30,7 +30,7 @@ GetOptions(
 pod2usage(1) if $opt{help};
 
 my ($min,$max);
-my ($count, $sum, $sum_square, $mean) = (0, 0, 0, 0);
+my ($n, $sum, $sum_square, $mean) = (0, 0, 0, 0);
 my (%count, $most_common);
 
 # some functions require the full set
@@ -55,11 +55,11 @@ while (my $num = <>) {
 
   next unless $num =~ /([-.0-9]+)/;
 
-  $count++;
+  $n++;
 
   my $delta = $num - $mean;
 
-  $mean += $delta / $count;
+  $mean += $delta / $n;
   $M2   += $delta * ($num - $mean);
 
   if ($keep_data) {
@@ -95,7 +95,7 @@ if ( defined $opt{summary} ) {
   ($median)     = percentiles( \@data, 50 );
 }
 
-my $variance = $count > 1 ? $M2 / ($count - 1)     : undef;
+my $variance = $n > 1 ? $M2 / ($n - 1)             : undef;
 my $sd       = defined $variance ? sqrt($variance) : undef;
 
 my @mode = grep { $count{$_} == $most_common } keys %count;
@@ -103,7 +103,7 @@ my @mode = grep { $count{$_} == $most_common } keys %count;
 my $mode = scalar @mode == 1 ? $mode[0] : undef; # don't deal with multimodes
 
 my %st = (
-  count      => $count,
+  N          => $n,
   max        => $max,
   mean       => $mean,
   median     => $median,
@@ -124,7 +124,7 @@ my $summary   = delete $opt{summary};
 
 my @opt = %opt      ? sort keys %opt
         : $summary  ? qw/ min q1 median q3 max /
-                    : qw/ count min max sum mean sd /;
+                    : qw/ N min max sum mean sd /;
 
 @opt = grep { defined $st{$_} } @opt;
 
@@ -180,7 +180,7 @@ simple statistics from the command line interface (CLI)
 
 The following options are available:
 
-  --count|n
+  --n|N|count
   --max
   --mean|avg|m
   --median
@@ -197,7 +197,7 @@ The following options are available:
 
 If no options are used, C<st> will print:
 
-  count min max sum mean sd
+  n min max sum mean sd
 
 The C<--summary> option will print the five-number summary:
 
