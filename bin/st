@@ -28,7 +28,7 @@ GetOptions(
 
 pod2usage(1) if $opt{help};
 
-my ($min,$max,$sum,$sum_square,$count,@data);
+my ($min,$max,$sum,$sum_square,$count,$mean,@data);
 my (%count, $most_common);
 
 # some functions require the full set
@@ -44,9 +44,18 @@ my $keep_frequencies = (
       defined $opt{mode}
 );
 
+my $M2 = 0;
+
 # read data
 while (my $num = <>) {
   chomp $num;
+
+  $count++;
+
+  my $delta = $num - $mean;
+
+  $mean += $delta / $count;
+  $M2   += $delta * ($num - $mean);
 
   if ($keep_data) {
     push @data, $num;
@@ -61,9 +70,6 @@ while (my $num = <>) {
   $max = $num if (!defined $max or $num > $max);
 
   $sum += $num;
-  $sum_square += $num ** 2;
-
-  $count++;
 }
 
 my ( %summary, $percentile, $quantile, $median );
@@ -84,7 +90,7 @@ if ( defined $opt{summary} ) {
   ($median)     = percentiles( \@data, 50 );
 }
 
-my $variance = $count > 1 ? ($sum_square - ($sum**2/$count)) / ($count-1) : undef;
+my $variance = $count > 1 ? $M2 / ($count - 1)     : undef;
 my $sd       = defined $variance ? sqrt($variance) : undef;
 
 my @mode = grep { $count{$_} == $most_common } keys %count;
@@ -94,7 +100,7 @@ my $mode = scalar @mode == 1 ? $mode[0] : undef; # don't deal with multimodes
 my %st = (
   count      => $count,
   max        => $max,
-  mean       => $sum / $count,
+  mean       => $mean,
   median     => $median,
   min        => $min,
   mode       => $mode,
@@ -203,6 +209,10 @@ Finally, you can specify output format with:
 =head1 AUTHOR
 
 Nelson Ferraz L<<nferraz@gmail.com>>
+
+=head1 CONTRIBUTORS
+
+imurray, who suggested a different algorithm for calculating variance.
 
 =head1 COPYRIGHT
 
