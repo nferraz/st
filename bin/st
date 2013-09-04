@@ -155,15 +155,15 @@ __END__
 
 =head1 NAME
 
-st - descriptive statistics from the command line
-
-=head1 DESCRIPTION
-
-This script provides basic functions used in descriptive statistics.
+simple statistics from the command line interface (CLI)
 
 =head1 USAGE
 
   st [options] <input_file>
+
+=head1 DESCRIPTION
+
+"st" is a command-line tool to perform simple statistical calculations.
 
 =head1 OPTIONS
 
@@ -184,15 +184,16 @@ The following options are available:
 
   --summary
 
-The option C<--summary> will print the five-number summary:
-
-  min q1 median q3 max
-
-(Please note that calculating quantiles requires that we hold the complete set in memory.)
-
 If no options are used, C<st> will print:
 
   count min max sum mean sd
+
+The C<--summary> option will print the five-number summary:
+
+  min q1 median q3 max
+
+(NOTE: calculating median and quantiles requires that we hold and
+sort the entire set in memory.)
 
 Finally, you can specify output format with:
 

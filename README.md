@@ -1,7 +1,7 @@
 st
 ==
 
-descriptive statistics from the command line interface (CLI)
+simple statistics from the command line interface (CLI)
 
 ### Rationale
 
@@ -57,18 +57,17 @@ How about mean and standard deviation?
     mean  sd
     5.50  3.03
 
-Or perhaps you want a five-number summary of the entire set:
-
-    $ st --summary numbers.txt
-    min   q1    median  q3    max
-    1.00  3.50  5.50    7.50  10.00
-
-Finally, if you don't specify command line options, you'll get this
-useful output:
+If you don't specify command line options, you'll get this output:
 
     $ st numbers.txt
     count  min   max   sum   mean  sd
     10.00  1.00  10.00 55.00 5.50  3.03
+
+And the "--summary" option will provide with this five-number summary:
+
+    $ st --summary numbers.txt
+    min   q1    median  q3    max
+    1.00  3.50  5.50    7.50  10.00
 
 #### How about "R" and other analytical tools?
 
@@ -78,15 +77,11 @@ calculation and graphical display.
 It provides a wide variety of statistical (linear and nonlinear modelling,
 statistical tests, time-series analysis, classification, clustering, ...).
 
-"st" is an easier solution for simpler problems, focused on descriptive
-statistics and the command line, so you can use it alongside with other
-commands in your shell (bash, sh).
+"st" is a simpler solution for simpler problems, focused on descriptive
+statistics, handy when you need quick results without leaving the shell.
 
-This just the beginning! Let me know if you have any suggestions or
-feedback.
+Let me know if you have any suggestions or feedback!
 
 #### Documentation
 
-For a list of options type:
-
-    st --help
+    man st
