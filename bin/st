@@ -30,6 +30,7 @@ pod2usage(1) if $opt{help};
 
 my ($min,$max,$sum,$sum_square,$count,@data);
 my (%count, $most_common);
+$sum = $sum_square = 0;
 
 # some functions require the full set
 my $keep_data = (
@@ -45,8 +46,9 @@ my $keep_frequencies = (
 );
 
 # read data
-while (my $num = <>) {
-  chomp $num;
+while (<>) {
+  my ($num) = /([-.0-9]+)/;
+  next unless defined $num;
 
   if ($keep_data) {
     push @data, $num;
