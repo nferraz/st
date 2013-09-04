@@ -248,4 +248,4 @@ and remove some Perl warnings.
 Copyright (c) 2013 Nelson Ferraz.
 
 This program is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
+it under the MIT License (see LICENSE).
