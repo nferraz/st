@@ -19,7 +19,7 @@ Imagine you have this sample file:
     9
     10
 
-How do you calculate the sum of the numbers from the command line?
+How do you calculate the sum of the numbers?
 
 #### The traditional way
 
