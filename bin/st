@@ -29,7 +29,7 @@ GetOptions(
 pod2usage(1) if $opt{help};
 
 my ($min,$max);
-my ($count, $sum, $sum_square, $mean) = (0, 0, 0);
+my ($count, $sum, $sum_square, $mean) = (0, 0, 0, 0);
 my (%count, $most_common);
 
 # some functions require the full set
