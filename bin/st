@@ -24,6 +24,7 @@ GetOptions(
   'var|variance',
   'delimiter|d=s',
   'format|fmt|f=s',
+  'no-header|nh',
   'help|h',
 ) or pod2usage(1);
 
@@ -132,6 +133,7 @@ my %st = (
 
 my $delimiter = delete $opt{delimiter} || "\t";
 my $format    = delete $opt{format}    || '%.2f';
+my $no_header = delete $opt{'no-header'};
 
 my $summary   = delete $opt{summary};
 
@@ -146,7 +148,8 @@ if (scalar @opt == 1) {
   exit;
 }
 
-print join($delimiter, @opt), "\n";
+print join($delimiter, @opt), "\n" unless $no_header;
+
 print join($delimiter, map { sprintf ($format, $st{$_}) } @opt), "\n";
 exit;
 
@@ -193,7 +196,7 @@ simple statistics from the command line interface (CLI)
 
 The following options are available:
 
-  --n|N|count
+  --N|n|count
   --max
   --mean|avg|m
   --median
@@ -223,6 +226,7 @@ Finally, you can specify output format with:
 
   --delimiter|d=<value>   # default: "\t"
   --format|fmt|f=<value>  # default: "%.2f"
+  --no-header
 
 =head1 AUTHOR
 
