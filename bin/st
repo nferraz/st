@@ -28,10 +28,12 @@ GetOptions(
 
 pod2usage(1) if $opt{help};
 
-my ($min,$max,$sum,$sum_square,$count,$mean,@data);
+my ($min,$max);
+my ($count, $sum, $sum_square, $mean) = (0, 0, 0);
 my (%count, $most_common);
 
 # some functions require the full set
+my @data;
 my $keep_data = (
        defined $opt{median}
     || defined $opt{percentile}
@@ -49,6 +51,8 @@ my $M2 = 0;
 # read data
 while (my $num = <>) {
   chomp $num;
+
+  next unless $num =~ /([-.0-9]+)/;
 
   $count++;
 
@@ -213,6 +217,9 @@ Nelson Ferraz L<<nferraz@gmail.com>>
 =head1 CONTRIBUTORS
 
 imurray, who suggested a different algorithm for calculating variance.
+
+asgeirn, who helped to filter input to extract numeric information,
+and remove some Perl warnings.
 
 =head1 COPYRIGHT
 
