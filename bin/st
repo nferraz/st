@@ -32,6 +32,7 @@ pod2usage(1) if $opt{help};
 my ($min,$max);
 my ($n, $sum, $sum_square, $mean) = (0, 0, 0, 0);
 my (%count, $most_common);
+$sum = $sum_square = 0;
 
 # some functions require the full set
 my @data;
@@ -50,8 +51,9 @@ my $keep_frequencies = (
 my $M2 = 0;
 
 # read data
-while (my $num = <>) {
-  chomp $num;
+while (<>) {
+  my ($num) = /([-.0-9]+)/;
+  next unless defined $num;
 
   if ($num !~ m{^
     [+-]?
