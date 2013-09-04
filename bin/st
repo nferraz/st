@@ -138,6 +138,18 @@ my $delimiter = delete $opt{delimiter} || "\t";
 my $format    = delete $opt{format}    || '%.2f';
 my $no_header = delete $opt{'no-header'};
 
+if ($delimiter =~ /^\\[a-z]$/) {
+  $delimiter = $delimiter eq '\t' ? "\t"
+             : $delimiter eq '\n' ? "\n"
+                                  : die "Invalid delimiter: '$delimiter'\n";
+}
+
+if ($format =~ m{( \%[0-9]*\.?[0-9]* [deEfgGi] )}x) {
+  $format = $1;
+} else {
+  die "Invalid format: '$format'\n";
+}
+
 my $summary   = delete $opt{summary};
 
 my @opt = %opt      ? sort keys %opt
@@ -231,6 +243,10 @@ Finally, you can specify output format with:
   --format|fmt|f=<value>  # default: "%.2f"
   --no-header|nh
   --quiet|q               # silently skip invalid lines
+
+One useful example:
+
+  st --no-header --delimiter='\n' --format='%d'
 
 =head1 AUTHOR
 
