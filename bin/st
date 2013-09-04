@@ -16,8 +16,8 @@ GetOptions(
   'median',
   'min',
   'mode',
-  'percentile|p=i',
-  'quantile|q=i',
+  'percentile=i',
+  'quantile=i',
   'sd|stdev',
   'sum|s',
   'summary',
@@ -25,10 +25,13 @@ GetOptions(
   'delimiter|d=s',
   'format|fmt|f=s',
   'no-header|nh',
+  'quiet|q',
   'help|h',
 ) or pod2usage(1);
 
 pod2usage(1) if $opt{help};
+
+my $quiet = delete $opt{quiet};
 
 my ($min,$max);
 my ($n, $sum, $sum_square, $mean) = (0, 0, 0, 0);
@@ -62,7 +65,7 @@ while (my $num = <>) {
       | [0-9]* \. [0-9]+ E [+-]? [0-9]+
     )
   $}x) {
-      warn "Invalid number format: '$num'\n";
+      warn "Invalid number '$num'\n" unless $quiet;
       next;
   }
 
@@ -206,8 +209,8 @@ The following options are available:
   --sum|s
   --var|variance
 
-  --percentile|p  # 0..100
-  --quantile|q    # 0..4
+  --percentile=<0..100>
+  --quantile=<0..4>
 
   --summary
 
@@ -226,7 +229,8 @@ Finally, you can specify output format with:
 
   --delimiter|d=<value>   # default: "\t"
   --format|fmt|f=<value>  # default: "%.2f"
-  --no-header
+  --no-header|nh
+  --quiet|q               # silently skip invalid lines
 
 =head1 AUTHOR
 
