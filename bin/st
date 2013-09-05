@@ -19,7 +19,7 @@ GetOptions(
   'min',
   'mode',
   'percentile=i',
-  'quantile=i',
+  'quartile=i',
   'sd|stdev',
   'sum|s',
   'variance|var',
@@ -41,7 +41,7 @@ GetOptions(
 
 
 my %predefined = (
-  complete => [ qw/N min q1 median q3 max sum mean sd var percentile quantile mode/ ],
+  complete => [ qw/N min q1 median q3 max sum mean sd var percentile quartile mode/ ],
   summary  => [ qw/min q1 median q3 max/ ],
   default  => [ qw/N min max sum mean sd/ ],
 );
@@ -57,7 +57,7 @@ my @data;
 my $keep_data = (
        defined $opt{median}
     || defined $opt{percentile}
-    || defined $opt{quantile}
+    || defined $opt{quartile}
     || defined $opt{summary}
     || defined $opt{complete}
 );
@@ -110,7 +110,7 @@ while (my $num = <>) {
 # silently exit if $n == 0
 exit if (!$n);
 
-my ( %summary, $percentile, $quantile, $median );
+my ( %summary, $percentile, $quartile, $median );
 if ( $opt{summary} or $opt{complete} ) {
   my ($q1, $q2, $q3) = percentiles(\@data, 25, 50, 75);
   %summary = (
@@ -122,8 +122,9 @@ if ( $opt{summary} or $opt{complete} ) {
   );
 } elsif (defined $opt{percentile}) {
   ($percentile) = percentiles( \@data, $opt{percentile} );
-} elsif (defined $opt{quantile}) {
-  ($quantile)   = percentiles( \@data, $opt{quantile} * 25 );
+} elsif (defined $opt{quartile}) {
+  die "Invalid quartile\n" if $opt{quartile} < 0 or $opt{quartile} > 4;
+  ($quartile)   = percentiles( \@data, $opt{quartile} * 25 );
 } elsif (defined $opt{median}) {
   ($median)     = percentiles( \@data, 50 );
 }
@@ -143,7 +144,7 @@ my %st = (
   min        => $min,
   mode       => $mode,
   percentile => $percentile,
-  quantile   => $quantile,
+  quartile   => $quartile,
   sd         => $sd,
   sum        => $sum,
   variance   => $variance,
@@ -255,7 +256,7 @@ The following options are available:
   --variance|var
 
   --percentile=<0..100>
-  --quantile=<0..4>
+  --quartile=<1..3>
 
   --summary   # five-number summary: min q1 median q3 max
   --complete  # everything

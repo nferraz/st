@@ -112,7 +112,7 @@ For fine-grained control, the following options are available:
     --var|variance
 
     --percentile=<0..100>
-    --quantile=<0..4>
+    --quartile=<1..3>
 
     --summary   # five-number summary: min q1 median q3 max
     --complete  # complete results
