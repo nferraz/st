@@ -58,13 +58,13 @@ How about mean and standard deviation?
     mean  sd
     5.50  3.03
 
-If you don't specify command line options, you'll get this output:
+If you don't specify any options, you'll get this output:
 
     $ st numbers.txt
     count  min   max   sum   mean  sd
     10.00  1.00  10.00 55.00 5.50  3.03
 
-And the "--summary" option will provide with this five-number summary:
+And the "--summary" option will provide the five-number summary:
 
     $ st --summary numbers.txt
     min   q1    median  q3    max
