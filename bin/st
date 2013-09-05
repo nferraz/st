@@ -10,6 +10,7 @@ use Pod::Usage;
 my %opt;
 GetOptions(
   \%opt,
+
   'N|n|count',
   'max',
   'mean|avg|m',
@@ -20,8 +21,12 @@ GetOptions(
   'quantile=i',
   'sd|stdev',
   'sum|s',
-  'summary',
-  'var|variance',
+  'variance|var',
+
+  'summary|five',
+  'complete|all',
+  'default|basic',
+
   'delimiter|d=s',
   'format|fmt|f=s',
   'no-header|nh',
@@ -29,9 +34,14 @@ GetOptions(
   'help|h',
 ) or pod2usage(1);
 
-pod2usage(1) if $opt{help};
 
-my $quiet = delete $opt{quiet};
+my %predefined = (
+  complete => [ qw/N min q1 median q3 max sum mean sd var percentile quantile mode/ ],
+  summary  => [ qw/min q1 median q3 max/ ],
+  default  => [ qw/N min max sum mean sd/ ],
+);
+
+pod2usage(1) if $opt{help};
 
 my ($min,$max);
 my ($n, $sum, $sum_square, $mean) = (0, 0, 0, 0);
@@ -44,6 +54,7 @@ my $keep_data = (
     || defined $opt{percentile}
     || defined $opt{quantile}
     || defined $opt{summary}
+    || defined $opt{complete}
 );
 
 # some functions require frequencies
@@ -65,7 +76,7 @@ while (my $num = <>) {
       | [0-9]* \. [0-9]+ E [+-]? [0-9]+
     )
   $}x) {
-      warn "Invalid number '$num'\n" unless $quiet;
+      warn "Invalid number '$num'\n" unless $opt{quiet};
       next;
   }
 
@@ -95,7 +106,7 @@ while (my $num = <>) {
 exit if (!$n);
 
 my ( %summary, $percentile, $quantile, $median );
-if ( defined $opt{summary} ) {
+if ( $opt{summary} or $opt{complete} ) {
   my ($q1, $q2, $q3) = percentiles(\@data, 25, 50, 75);
   %summary = (
     min    => $min,
@@ -150,11 +161,10 @@ if ($format =~ m{( \%[0-9]*\.?[0-9]* [deEfgGi] )}x) {
   die "Invalid format: '$format'\n";
 }
 
-my $summary   = delete $opt{summary};
-
-my @opt = %opt      ? sort keys %opt
-        : $summary  ? qw/ min q1 median q3 max /
-                    : qw/ N min max sum mean sd /;
+my @opt = !%opt || $opt{default}  ? @{ $predefined{default}  }
+        :          $opt{complete} ? @{ $predefined{complete} }
+        :          $opt{summary}  ? @{ $predefined{summary}  }
+                                  : grep { defined $opt{$_} } @{ $predefined{complete} };
 
 @opt = grep { defined $st{$_} } @opt;
 
@@ -227,7 +237,7 @@ The following options are available:
   --mode
   --sd|stdev
   --sum|s
-  --var|variance
+  --variance|var
 
   --percentile=<0..100>
   --quantile=<0..4>
