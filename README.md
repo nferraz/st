@@ -114,6 +114,7 @@ For fine-grained control, the following options are available:
     --quantile=<0..4>
 
     --summary   # five-number summary: min q1 median q3 max
+    --complete  # complete results
 
 ##### Format
 
@@ -126,7 +127,15 @@ For fine-grained control, the following options are available:
 
 ##### Examples
 
-    st --transverse-options --delimiter '='
+    st
+
+    st --summary
+
+    st --complete
+
+    st --complete --transverse-output
+
+    st --no-header --delimiter='\n' --format='%.1e'
 
 
 ### Contributing

@@ -276,9 +276,9 @@ The following options are available:
 
   st --complete
 
-  st --no-header --delimiter='\n' --format='%d'
+  st --complete --transverse-output
 
-  st --transverse-output --delimiter '='
+  st --no-header --delimiter='\n' --format='%.1e'
 
 =head1 AUTHOR
 
