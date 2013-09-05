@@ -257,17 +257,28 @@ The following options are available:
   --quantile=<0..4>
 
   --summary   # five-number summary: min q1 median q3 max
+  --complete  # everything
 
 =head2 FORMAT
 
   --delimiter|d=<value>   # default: "\t"
   --format|fmt|f=<value>  # default: "%.2f"
-  --no-header|nh
-  --quiet|q               # silently skip invalid lines
 
-=head2 EXAMPLE
+  --no-header|nh          # don't display header
+  --transverse-output     # output in multiple lines
+  --quiet|q               # silently skip invalid input
+
+=head2 EXAMPLES
+
+  st
+
+  st --summary
+
+  st --complete
 
   st --no-header --delimiter='\n' --format='%d'
+
+  st --transverse-output --delimiter '='
 
 =head1 AUTHOR
 
