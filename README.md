@@ -76,9 +76,9 @@ And the "--summary" option will provide with this five-number summary:
 "R" and Octave are integrated suites of software for data manipulation,
 calculation and graphical display.
 
-They provide a wide variety of statistical (linear and nonlinear
-modelling, statistical tests, time-series analysis, classification,
-clustering, etc).
+They provide a wide variety of numerical functions (linear and
+nonlinear modelling, statistical tests, time-series analysis,
+classification, clustering, etc).
 
 "st" is a simpler solution for simpler problems, focused on descriptive
 statistics, handy when you need quick results without leaving the shell.
@@ -86,11 +86,17 @@ statistics, handy when you need quick results without leaving the shell.
 
 ### Usage
 
+    st <file>
+
     st [options] <file>
 
 #### Options
 
-The following options are available:
+If no options are used, "st" will print:
+
+    n min max sum mean sd
+
+For fine-grained control, the following options are available:
 
 ##### Output
 
@@ -108,10 +114,6 @@ The following options are available:
     --quantile=<0..4>
 
     --summary   # five-number summary: min q1 median q3 max
-
-If no options are used, "st" will print:
-
-    n min max sum mean sd
 
 ##### Format
 
