@@ -11,6 +11,7 @@ my %opt;
 GetOptions(
   \%opt,
 
+  # functions
   'N|n|count',
   'max',
   'mean|avg|m',
@@ -23,14 +24,17 @@ GetOptions(
   'sum|s',
   'variance|var',
 
+  # predefined sets
   'summary|five',
   'complete|all',
   'default|basic',
 
+  # output control
   'delimiter|d=s',
   'format|fmt|f=s',
   'no-header|nh',
   'quiet|q',
+
   'help|h',
 ) or pod2usage(1);
 
