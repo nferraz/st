@@ -1,7 +1,7 @@
 st
 ==
 
-simple statistics from the command line interface (CLI)
+statistics from the command line interface (CLI)
 
 ### Description
 
@@ -43,7 +43,8 @@ or standard deviation...
 
 #### Using st
 
-"st" is a command-line tool to perform simple statistical calculations.
+"st" is a command-line tool to calculate simple statistics from a
+file or standard input.
 
 Let's start with "sum":
 
@@ -73,11 +74,11 @@ And the "--summary" option will provide the five-number summary:
 
 #### How about "R", Octave and other analytical tools?
 
-"R" and Octave are integrated suites of software for data manipulation,
-calculation and graphical display.
+"R" and Octave are integrated suites for data manipulation, calculation
+and graphical display.
 
-They provide a wide variety of numerical functions (linear and
-nonlinear modelling, statistical tests, time-series analysis,
+They provide a wide variety of numeric and analytic methods (linear
+and nonlinear modelling, statistical tests, time-series analysis,
 classification, clustering, etc).
 
 "st" is a simpler solution for simpler problems, focused on descriptive
@@ -98,7 +99,7 @@ If no options are used, "st" will print:
 
 For fine-grained control, the following options are available:
 
-##### Output
+##### Functions
 
     --N|n|count
     --max

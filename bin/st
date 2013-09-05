@@ -221,11 +221,12 @@ __END__
 
 =head1 NAME
 
-simple statistics from the command line interface (CLI)
+st - statistics from the command line interface (CLI)
 
 =head1 DESCRIPTION
 
-"st" is a command-line tool to perform simple statistical calculations.
+"st" is a command-line tool to calculate statistics from a file or
+standard input.
 
 =head1 USAGE
 
