@@ -120,11 +120,14 @@ For fine-grained control, the following options are available:
     --delimiter|d=<value>   # default: "\t"
     --format|fmt|f=<value>  # default: "%.2f"
     --no-header|nh
+    --transverse-output|to  #
     --quiet|q               # silently skip invalid lines
 
-##### Example
+##### Examples
 
-    st --no-header --delimiter='\n' --format='%d'
+    st --no-header --delimiter '\n' --format '%E'
+
+    st --transverse-options --delimiter '='
 
 
 ### Contributing

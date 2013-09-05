@@ -33,6 +33,7 @@ GetOptions(
   'delimiter|d=s',
   'format|fmt|f=s',
   'no-header|nh',
+  'transverse-output|to',
   'quiet|q',
 
   'help|h',
@@ -149,9 +150,11 @@ my %st = (
   %summary,
 );
 
-my $delimiter = delete $opt{delimiter} || "\t";
-my $format    = delete $opt{format}    || '%.2f';
-my $no_header = delete $opt{'no-header'};
+my $delimiter  = delete $opt{'delimiter'}   || "\t";
+my $format     = delete $opt{'format'}      || '%.2f';
+my $no_header  = delete $opt{'no-header'};
+my $transverse = delete $opt{'transverse-output'};
+my $quiet      = delete $opt{'quiet'};
 
 if ($delimiter =~ /^\\[a-z]$/) {
   $delimiter = $delimiter eq '\t' ? "\t"
@@ -177,9 +180,16 @@ if (scalar @opt == 1) {
   exit;
 }
 
-print join($delimiter, @opt), "\n" unless $no_header;
+if ($transverse) {
+  for my $opt (@opt) {
+    print "$opt$delimiter" unless $no_header;
+    print sprintf( $format, $st{$opt} ), "\n";
+  }
+} else {
+  print join($delimiter, @opt), "\n" unless $no_header;
+  print join($delimiter, map { sprintf ($format, $st{$_}) } @opt), "\n";
+}
 
-print join($delimiter, map { sprintf ($format, $st{$_}) } @opt), "\n";
 exit;
 
 ###
