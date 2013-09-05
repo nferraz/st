@@ -3,7 +3,7 @@ st
 
 simple statistics from the command line interface (CLI)
 
-### Rationale
+### Description
 
 Imagine you have this sample file:
 
@@ -40,6 +40,7 @@ If you ask around, you'll come up with suggestions like these:
 Now imagine that you need to calculate the arithmetic mean, median,
 or standard deviation...
 
+
 #### Using st
 
 "st" is a command-line tool to perform simple statistical calculations.
@@ -69,21 +70,67 @@ And the "--summary" option will provide with this five-number summary:
     min   q1    median  q3    max
     1.00  3.50  5.50    7.50  10.00
 
-#### How about "R" and other analytical tools?
 
-"R" is an integrated suite of software facilities for data manipulation,
+#### How about "R", Octave and other analytical tools?
+
+"R" and Octave are integrated suites of software for data manipulation,
 calculation and graphical display.
 
-It provides a wide variety of statistical (linear and nonlinear modelling,
-statistical tests, time-series analysis, classification, clustering, ...).
+They provide a wide variety of statistical (linear and nonlinear
+modelling, statistical tests, time-series analysis, classification,
+clustering, etc).
 
 "st" is a simpler solution for simpler problems, focused on descriptive
 statistics, handy when you need quick results without leaving the shell.
 
-Let me know if you have any suggestions or feedback!
 
-Nelson Ferraz <<nferraz@gmail.com>>
+### Usage
 
-#### Documentation
+    st [options] <file>
 
-    man st
+#### Options
+
+The following options are available:
+
+##### Output
+
+    --N|n|count
+    --max
+    --mean|avg|m
+    --median
+    --min
+    --mode
+    --sd|stdev
+    --sum|s
+    --var|variance
+
+    --percentile=<0..100>
+    --quantile=<0..4>
+
+    --summary   # five-number summary: min q1 median q3 max
+
+If no options are used, "st" will print:
+
+    n min max sum mean sd
+
+##### Format
+
+    --delimiter|d=<value>   # default: "\t"
+    --format|fmt|f=<value>  # default: "%.2f"
+    --no-header|nh
+    --quiet|q               # silently skip invalid lines
+
+##### Example
+
+    st --no-header --delimiter='\n' --format='%d'
+
+
+### Contributing
+
+Send comments, suggestions and bug reports to:
+
+https://github.com/nferraz/st/issues
+
+Or fork the code on github:
+
+https://github.com/nferraz/st

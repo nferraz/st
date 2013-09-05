@@ -199,17 +199,25 @@ __END__
 
 simple statistics from the command line interface (CLI)
 
-=head1 USAGE
-
-  st [options] <input_file>
-
 =head1 DESCRIPTION
 
 "st" is a command-line tool to perform simple statistical calculations.
 
-=head1 OPTIONS
+=head1 USAGE
+
+  st <input_file>
+
+  st [options] <input_file>
+
+=head2 OPTIONS
+
+If no options are used, C<st> will print:
+
+  n min max sum mean sd
 
 The following options are available:
+
+=head2 OUTPUT
 
   --N|n|count
   --max
@@ -224,27 +232,16 @@ The following options are available:
   --percentile=<0..100>
   --quantile=<0..4>
 
-  --summary
+  --summary   # five-number summary: min q1 median q3 max
 
-If no options are used, C<st> will print:
-
-  n min max sum mean sd
-
-The C<--summary> option will print the five-number summary:
-
-  min q1 median q3 max
-
-(NOTE: calculating median and quantiles requires that we hold and
-sort the entire set in memory.)
-
-Finally, you can specify output format with:
+=head2 FORMAT
 
   --delimiter|d=<value>   # default: "\t"
   --format|fmt|f=<value>  # default: "%.2f"
   --no-header|nh
   --quiet|q               # silently skip invalid lines
 
-One useful example:
+=head2 EXAMPLE
 
   st --no-header --delimiter='\n' --format='%d'
 
@@ -256,8 +253,20 @@ Nelson Ferraz L<<nferraz@gmail.com>>
 
 imurray, who suggested a different algorithm for calculating variance.
 
-asgeirn, who helped to filter input to extract numeric information,
-and remove some Perl warnings.
+asgeirn, who suggested a input filter and helped to remove some
+warnings.
+
+gabeguz, who modified the script to make it more portable.
+
+=head2 CONTRIBUTING
+
+Send comments, suggestions and bug reports to:
+
+https://github.com/nferraz/st/issues
+
+Or fork the code on github:
+
+https://github.com/nferraz/st
 
 =head1 COPYRIGHT
 
