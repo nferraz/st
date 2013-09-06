@@ -52,7 +52,7 @@ my ($min,$max);
 my ($n, $sum, $sum_square, $mean) = (0, 0, 0, 0);
 my (%count, $most_common);
 
-# some functions require the full set
+# some functions require the full dataset
 my @data;
 my $keep_data = (
        defined $opt{median}
@@ -267,7 +267,7 @@ The following options are available:
   --format|fmt|f=<value>  # default: "%.2f"
 
   --no-header|nh          # don't display header
-  --transverse-output     # output in multiple lines
+  --transverse-output|to  # output in multiple lines
   --quiet|q               # silently skip invalid input
 
 =head2 EXAMPLES
@@ -294,8 +294,6 @@ asgeirn, who suggested a input filter and helped to remove some
 warnings.
 
 gabeguz, who modified the script to make it more portable.
-
-=head2 CONTRIBUTING
 
 Send comments, suggestions and bug reports to:
 
