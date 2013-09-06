@@ -71,6 +71,16 @@ And the "--summary" option will provide the five-number summary:
     min   q1    median  q3    max
     1.00  3.50  5.50    7.50  10.00
 
+You can also modify the output format:
+
+    $ st --transverse-output numbers.txt
+    N     10.00
+    min   1.00
+    max   10.00
+    sum   55.00
+    mean  5.50
+    sd    3.03
+
 
 #### How about "R", Octave and other analytical tools?
 
@@ -125,19 +135,6 @@ For fine-grained control, the following options are available:
     --no-header|nh          # don't display header
     --transverse-output     # output in multiple lines
     --quiet|q               # silently skip invalid input
-
-##### Examples
-
-    st
-
-    st --summary
-
-    st --complete
-
-    st --complete --transverse-output
-
-    st --no-header --delimiter='\n' --format='%.1e'
-
 
 ### Contributing
 
