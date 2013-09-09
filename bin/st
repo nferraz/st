@@ -282,13 +282,12 @@ For fine-grained control, the following options are available:
 
 =head3 ERROR HANDLING
 
-What happens if "st" finds non-numeric data? By default it will
-emit a warning, skip the current line and continue.
+By default, "st" will skip invalid input with a warning.
 
 You can change this behavior with the following options:
 
-  --quiet|q               # silently skip invalid input (no warning)
-  --strict                # interrupt process
+  --strict                # interrupt process on invalid input
+  --quiet|q               # no warning
 
 =head2 EXAMPLES
 
@@ -300,7 +299,7 @@ You can change this behavior with the following options:
 
   st --transverse-output --format='%5.2f'
 
-  st --no-header --delimiter='\n' 
+  st --no-header --delimiter=',' 
 
 =head1 AUTHOR
 
