@@ -171,7 +171,7 @@ if ($delimiter =~ /^\\[a-z]$/) {
                                   : die "Invalid delimiter: '$delimiter'\n";
 }
 
-if ($format =~ m{( \%[0-9]*\.?[0-9]* [deEfgGi] )}x) {
+if ($format =~ m{( \s* \% [\s+-]? [0-9]*\.?[0-9]* [deEfgGi] \s* )}x) {
   $format = $1;
 } else {
   die "Invalid format: '$format'\n";
@@ -249,9 +249,9 @@ If no options are used, C<st> will print:
 
   n min max sum mean sd
 
-The following options are available:
+For fine-grained control, the following options are available:
 
-=head2 OUTPUT
+=head3 FUNCTIONS
 
   --N|n|count
   --max
@@ -269,7 +269,7 @@ The following options are available:
   --summary   # five-number summary: min q1 median q3 max
   --complete  # everything
 
-=head2 FORMAT
+=head3 FORMATTING
 
   --delimiter|d=<value>   # default: "\t"
   --format|fmt|f=<value>  # default: "%.2f"
@@ -277,7 +277,7 @@ The following options are available:
   --no-header|nh          # don't display header
   --transverse-output|to  # output in multiple lines
 
-=head2 ERROR HANDLING
+=head3 ERROR HANDLING
 
 What happens if "st" finds non-numeric data? By default it will
 emit a warning, skip the current line and continue.
@@ -295,9 +295,9 @@ You can change this behavior with the following options:
 
   st --complete
 
-  st --complete --transverse-output
+  st --transverse-output --format='%5.2f'
 
-  st --no-header --delimiter='\n' --format='%.1e'
+  st --no-header --delimiter='\n' 
 
 =head1 AUTHOR
 

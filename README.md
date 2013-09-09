@@ -128,7 +128,7 @@ For fine-grained control, the following options are available:
     --summary   # five-number summary: min q1 median q3 max
     --complete  # complete results
 
-##### Format
+##### Formatting
 
     --delimiter|d=<value>   # default: "\t"
     --format|fmt|f=<value>  # default: "%.2f"
