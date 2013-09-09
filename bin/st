@@ -159,11 +159,14 @@ my %st = (
   %summary,
 );
 
+# we must delete all the options not related to functions
+
 my $delimiter  = delete $opt{'delimiter'}   || "\t";
 my $format     = delete $opt{'format'}      || '%.2f';
 my $no_header  = delete $opt{'no-header'};
 my $transverse = delete $opt{'transverse-output'};
 my $quiet      = delete $opt{'quiet'};
+my $strict     = delete $opt{'strict'};
 
 if ($delimiter =~ /^\\[a-z]$/) {
   $delimiter = $delimiter eq '\t' ? "\t"
