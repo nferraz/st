@@ -65,15 +65,16 @@ If you don't specify any options, you'll get this output:
     count  min   max   sum   mean  sd
     10.00  1.00  10.00 55.00 5.50  3.03
 
-You can modify the output format with "--transverse-output"  (or "--to"):
+You can modify the output format with "--no-header", "--transverse-output"
+and "format":
 
-    $ st --transverse-output numbers.txt
-    N     10.00
-    min   1.00
-    max   10.00
-    sum   55.00
-    mean  5.50
-    sd    3.03
+    $ st --no-header --transverse-output --format='%5.1f'
+    10.0
+     1.0
+    10.0
+    55.0
+     5.5
+     3.0
 
 And the "--summary" option will provide the five-number summary:
 
