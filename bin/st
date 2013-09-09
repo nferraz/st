@@ -21,6 +21,7 @@ GetOptions(
   'percentile=i',
   'quartile=i',
   'sd|stdev',
+  'sem|sterr',
   'sum|s',
   'variance|var',
 
@@ -44,7 +45,7 @@ GetOptions(
 
 
 my %predefined = (
-  complete => [ qw/N min q1 median q3 max sum mean sd variance percentile quartile mode/ ],
+  complete => [ qw/N min q1 median q3 max sum mean sd sem variance percentile quartile mode/ ],
   summary  => [ qw/min q1 median q3 max/ ],
   default  => [ qw/N min max sum mean sd/ ],
 );
@@ -139,6 +140,7 @@ if ( $opt{summary} or $opt{complete} ) {
 
 my $variance = $n > 1 ? $M2 / ($n - 1)             : undef;
 my $sd       = defined $variance ? sqrt($variance) : undef;
+my $sem      = defined $sd       ? $sd/sqrt($n)    : undef;
 
 my @mode = grep { $count{$_} == $most_common } keys %count;
 
@@ -154,6 +156,7 @@ my %st = (
   percentile => $percentile,
   quartile   => $quartile,
   sd         => $sd,
+  sem        => $sem,
   sum        => $sum,
   variance   => $variance,
   %summary,
@@ -256,18 +259,19 @@ For fine-grained control, the following options are available:
 
 =head3 FUNCTIONS
 
-  --N|n|count
-  --max
-  --mean|avg|m
-  --median
-  --min
-  --mode
-  --sd|stdev
-  --sum|s
-  --variance|var
+  --N|n|count           # sample size
+  --max                 # maximum
+  --mean|average|avg|m  # mean
+  --median              # median
+  --min                 # minimum
+  --mode                # mode
+  --sd|stdev            # standard deviation
+  --sem|sterr           # standard error of mean
+  --sum|s               # sum of elements of the sample
+  --variance|var        # variance
 
-  --percentile=<0..100>
-  --quartile=<1..3>
+  --percentile=<0..100> # percentile (0 < p < 100)
+  --quartile=<1..3>     # quartile (1 < q < 3)
 
   --summary   # five-number summary: min q1 median q3 max
   --complete  # everything
