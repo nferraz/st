@@ -34,7 +34,10 @@ GetOptions(
   'format|fmt|f=s',
   'no-header|nh',
   'transverse-output|to',
+
+  # error handling
   'quiet|q',
+  'strict',
 
   'help|h',
 ) or pod2usage(1);
@@ -81,7 +84,12 @@ while (my $num = <>) {
       | [0-9]* \. [0-9]+ E [+-]? [0-9]+
     )
   $}x) {
-      warn "Invalid number '$num'\n" unless $opt{quiet};
+      my $err = "Invalid value '$num' on input line $.\n";
+      if ($opt{strict}) {
+        die $err;
+      } elsif (!$opt{quiet}) {
+        warn $err;
+      }
       next;
   }
 
@@ -268,7 +276,16 @@ The following options are available:
 
   --no-header|nh          # don't display header
   --transverse-output|to  # output in multiple lines
-  --quiet|q               # silently skip invalid input
+
+=head2 ERROR HANDLING
+
+What happens if "st" finds non-numeric data? By default it will
+emit a warning, skip the current line and continue.
+
+You can change this behavior with the following options:
+
+  --quiet|q               # silently skip invalid input (no warning)
+  --strict                # interrupt process
 
 =head2 EXAMPLES
 
@@ -286,14 +303,7 @@ The following options are available:
 
 Nelson Ferraz L<<nferraz@gmail.com>>
 
-=head1 CONTRIBUTORS
-
-imurray, who suggested a different algorithm for calculating variance.
-
-asgeirn, who suggested a input filter and helped to remove some
-warnings.
-
-gabeguz, who modified the script to make it more portable.
+=head1 CONTRIBUTING
 
 Send comments, suggestions and bug reports to:
 
@@ -302,6 +312,15 @@ https://github.com/nferraz/st/issues
 Or fork the code on github:
 
 https://github.com/nferraz/st
+
+=head2 THANKS
+
+imurray, who suggested a different algorithm for calculating variance.
+
+asgeirn, who suggested a input filter and helped to remove some
+warnings.
+
+gabeguz, who modified the script to make it more portable.
 
 =head1 COPYRIGHT
 
