@@ -65,13 +65,7 @@ If you don't specify any options, you'll get this output:
     count  min   max   sum   mean  sd
     10.00  1.00  10.00 55.00 5.50  3.03
 
-And the "--summary" option will provide the five-number summary:
-
-    $ st --summary numbers.txt
-    min   q1    median  q3    max
-    1.00  3.50  5.50    7.50  10.00
-
-You can also modify the output format:
+You can modify the output format with "--transverse-output"  (or "--to"):
 
     $ st --transverse-output numbers.txt
     N     10.00
@@ -81,15 +75,22 @@ You can also modify the output format:
     mean  5.50
     sd    3.03
 
+And the "--summary" option will provide the five-number summary:
 
-#### How about "R", Octave and other analytical tools?
+    $ st --summary numbers.txt
+    min   q1    median  q3    max
+    1.00  3.50  5.50    7.50  10.00
+
+
+#### How does it compare with R, Octave and other analytical tools?
 
 "R" and Octave are integrated suites for data manipulation, calculation
 and graphical display.
 
-They provide a wide variety of numeric and analytic methods (linear
-and nonlinear modelling, statistical tests, time-series analysis,
-classification, clustering, etc).
+They provide high-level interpreted languages, capabilities for the
+numerical solution of linear and nonlinear problems, and for
+performing other numerical experiments, including statistical tests,
+classification, clustering, etc.
 
 "st" is a simpler solution for simpler problems, focused on descriptive
 statistics, handy when you need quick results without leaving the shell.
@@ -134,7 +135,16 @@ For fine-grained control, the following options are available:
 
     --no-header|nh          # don't display header
     --transverse-output     # output in multiple lines
-    --quiet|q               # silently skip invalid input
+
+##### Error handling
+
+What happens if "st" finds non-numeric data? By default it will
+emit a warning, skip the current line and continue.
+
+You can change this behavior with the following options:
+
+    --quiet|q               # silently skip invalid input (no warning)
+    --strict                # interrupt process
 
 ### Contributing
 
