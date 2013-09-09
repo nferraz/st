@@ -185,7 +185,7 @@ my @opt = !%opt || $opt{default}  ? @{ $predefined{default}  }
 @opt = grep { defined $st{$_} } @opt;
 
 if (scalar @opt == 1) {
-  print "$st{$opt[0]}\n";
+  print sprintf( $format, $st{$opt[0]} ), "\n";
   exit;
 }
 
