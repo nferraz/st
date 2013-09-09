@@ -44,7 +44,7 @@ GetOptions(
 
 
 my %predefined = (
-  complete => [ qw/N min q1 median q3 max sum mean sd var percentile quartile mode/ ],
+  complete => [ qw/N min q1 median q3 max sum mean sd variance percentile quartile mode/ ],
   summary  => [ qw/min q1 median q3 max/ ],
   default  => [ qw/N min max sum mean sd/ ],
 );
