@@ -94,9 +94,9 @@ while (my $num = <>) {
 
   if (!valid_input($num)) {
       my $err = "Invalid value '$num' on input line $.\n";
-      if ($opt{strict}) {
+      if ($strict) {
         die $err;
-      } elsif (!$opt{quiet}) {
+      } elsif (!$quiet) {
         warn $err;
       }
       next;
