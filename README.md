@@ -105,12 +105,6 @@ statistics, handy when you need quick results without leaving the shell.
 
 #### Options
 
-If no options are used, "st" will print:
-
-    n min max sum mean sd
-
-For fine-grained control, the following options are available:
-
 ##### Functions
 
     --N|n|count
@@ -129,6 +123,10 @@ For fine-grained control, the following options are available:
     --summary   # five-number summary: min q1 median q3 max
     --complete  # complete results
 
+If no functions are selected, "st" will print:
+
+    n min max sum mean sd
+
 ##### Formatting
 
     --delimiter|d=<value>   # default: "\t"
@@ -139,13 +137,12 @@ For fine-grained control, the following options are available:
 
 ##### Error handling
 
-What happens if "st" finds non-numeric data? By default it will
-emit a warning, skip the current line and continue.
+By default, "st" skips invalid input with a warning.
 
 You can change this behavior with the following options:
 
-    --quiet|q               # silently skip invalid input (no warning)
-    --strict                # interrupt process
+    --strict   # interrupt process
+    --quiet|q  # skip with no warning
 
 ### Contributing
 
