@@ -66,7 +66,7 @@ if ($format =~ m{( \s* \% [\s+-]? [0-9]*\.?[0-9]* [deEfgGi] \s* )}x) {
   die "Invalid format: '$format'\n";
 }
 
-my %st = process(%opt);
+my %result = process(%opt);
 
 my @opt = grep { defined $st{$_} } ordered_options(%opt);
 
@@ -179,7 +179,7 @@ sub process {
 
   my $mode = scalar @mode == 1 ? $mode[0] : undef; # don't deal with multimodes
 
-  my %st = (
+  my %result = (
     N          => $n,
     max        => $max,
     mean       => $mean,
@@ -195,7 +195,7 @@ sub process {
     %summary,
   );
 
-  return %st;
+  return %result;
 }
 
 
