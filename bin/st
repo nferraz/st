@@ -66,109 +66,7 @@ if ($format =~ m{( \s* \% [\s+-]? [0-9]*\.?[0-9]* [deEfgGi] \s* )}x) {
   die "Invalid format: '$format'\n";
 }
 
-my ($min,$max);
-my ($n, $sum, $sum_square, $mean) = (0, 0, 0, 0);
-my (%count, $most_common);
-
-# some functions require that we keep the full dataset
-my @data;
-my $keep_data = (
-       defined $opt{median}
-    || defined $opt{percentile}
-    || defined $opt{quartile}
-    || defined $opt{summary}
-    || defined $opt{complete}
-);
-
-# some functions require that we keep frequencies
-my $keep_frequencies = (
-       defined $opt{mode}
-    || defined $opt{complete}
-);
-
-my $M2 = 0; # used to calculate variance
-
-# read data
-while (my $num = <>) {
-  chomp $num;
-
-  if (!valid_input($num)) {
-      my $err = "Invalid value '$num' on input line $.\n";
-      if ($strict) {
-        die $err;
-      } elsif (!$quiet) {
-        warn $err;
-      }
-      next;
-  }
-
-  $n++;
-
-  my $delta = $num - $mean;
-
-  $mean += $delta / $n;
-  $M2   += $delta * ($num - $mean);
-
-  if ($keep_data) {
-    push @data, $num;
-  }
-
-  if ($keep_frequencies) {
-    $count{$num}++;
-    $most_common = $count{$num} if (!defined $most_common or $count{$num} > $most_common);
-  }
-
-  $min = $num if (!defined $min or $num < $min);
-  $max = $num if (!defined $max or $num > $max);
-
-  $sum += $num;
-}
-
-# silently exit if $n == 0
-exit if (!$n);
-
-my ( %summary, $percentile, $quartile, $median );
-if ( $opt{summary} or $opt{complete} ) {
-  my ($q1, $q2, $q3) = percentiles(\@data, 25, 50, 75);
-  %summary = (
-    min    => $min,
-    q1     => $q1,
-    median => $q2,
-    q3     => $q3,
-    max    => $max,
-  );
-} elsif (defined $opt{percentile}) {
-  ($percentile) = percentiles( \@data, $opt{percentile} );
-} elsif (defined $opt{quartile}) {
-  die "Invalid quartile\n" if $opt{quartile} < 0 or $opt{quartile} > 4;
-  ($quartile)   = percentiles( \@data, $opt{quartile} * 25 );
-} elsif (defined $opt{median}) {
-  ($median)     = percentiles( \@data, 50 );
-}
-
-my $variance = $n > 1 ? $M2 / ($n - 1)             : undef;
-my $sd       = defined $variance ? sqrt($variance) : undef;
-my $sem      = defined $sd       ? $sd/sqrt($n)    : undef;
-
-my @mode = grep { $count{$_} == $most_common } keys %count;
-
-my $mode = scalar @mode == 1 ? $mode[0] : undef; # don't deal with multimodes
-
-my %st = (
-  N          => $n,
-  max        => $max,
-  mean       => $mean,
-  median     => $median,
-  min        => $min,
-  mode       => $mode,
-  percentile => $percentile,
-  quartile   => $quartile,
-  sd         => $sd,
-  sem        => $sem,
-  sum        => $sum,
-  variance   => $variance,
-  %summary,
-);
+my %st = process(%opt);
 
 my @opt = grep { defined $st{$_} } ordered_options(%opt);
 
@@ -190,6 +88,117 @@ if ($transverse) {
 exit;
 
 ###
+
+sub process {
+  my %opt = @_;
+  my ($min,$max);
+  my ($n, $sum, $sum_square, $mean) = (0, 0, 0, 0);
+  my (%count, $most_common);
+
+  # some functions require that we keep the full dataset
+  my @data;
+  my $keep_data = (
+         defined $opt{median}
+      || defined $opt{percentile}
+      || defined $opt{quartile}
+      || defined $opt{summary}
+      || defined $opt{complete}
+  );
+
+  # some functions require that we keep frequencies
+  my $keep_frequencies = (
+         defined $opt{mode}
+      || defined $opt{complete}
+  );
+
+  my $M2 = 0; # used to calculate variance
+
+
+  while (my $num = <>) {
+    chomp $num;
+
+    if (!valid_input($num)) {
+        my $err = "Invalid value '$num' on input line $.\n";
+        if ($strict) {
+          die $err;
+        } elsif (!$quiet) {
+          warn $err;
+        }
+        next;
+    }
+
+    $n++;
+
+    my $delta = $num - $mean;
+
+    $mean += $delta / $n;
+    $M2   += $delta * ($num - $mean);
+
+    if ($keep_data) {
+      push @data, $num;
+    }
+
+    if ($keep_frequencies) {
+      $count{$num}++;
+      $most_common = $count{$num} if (!defined $most_common or $count{$num} > $most_common);
+    }
+
+    $min = $num if (!defined $min or $num < $min);
+    $max = $num if (!defined $max or $num > $max);
+
+    $sum += $num;
+  }
+
+  # silently exit if $n == 0
+  exit if (!$n);
+
+  my ( %summary, $percentile, $quartile, $median );
+  if ( $opt{summary} or $opt{complete} ) {
+    my ($q1, $q2, $q3) = percentiles(\@data, 25, 50, 75);
+    %summary = (
+      min    => $min,
+      q1     => $q1,
+      median => $q2,
+      q3     => $q3,
+      max    => $max,
+    );
+  } elsif (defined $opt{percentile}) {
+    ($percentile) = percentiles( \@data, $opt{percentile} );
+  } elsif (defined $opt{quartile}) {
+    die "Invalid quartile\n" if $opt{quartile} < 0 or $opt{quartile} > 4;
+    ($quartile)   = percentiles( \@data, $opt{quartile} * 25 );
+  } elsif (defined $opt{median}) {
+    ($median)     = percentiles( \@data, 50 );
+  }
+
+  my $variance = $n > 1 ? $M2 / ($n - 1)             : undef;
+  my $sd       = defined $variance ? sqrt($variance) : undef;
+  my $sem      = defined $sd       ? $sd/sqrt($n)    : undef;
+
+  my @mode = grep { $count{$_} == $most_common } keys %count;
+
+  my $mode = scalar @mode == 1 ? $mode[0] : undef; # don't deal with multimodes
+
+  my %st = (
+    N          => $n,
+    max        => $max,
+    mean       => $mean,
+    median     => $median,
+    min        => $min,
+    mode       => $mode,
+    percentile => $percentile,
+    quartile   => $quartile,
+    sd         => $sd,
+    sem        => $sem,
+    sum        => $sum,
+    variance   => $variance,
+    %summary,
+  );
+
+  return %st;
+}
+
+
 
 sub percentiles {
   my ($data, @p) = @_;
