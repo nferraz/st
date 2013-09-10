@@ -43,15 +43,28 @@ GetOptions(
   'help|h',
 ) or pod2usage(1);
 
-
-# predefined output sets
-my %predefined = (
-  complete => [ qw/N min q1 median q3 max sum mean sd sem variance percentile quartile mode/ ],
-  summary  => [ qw/min q1 median q3 max/ ],
-  default  => [ qw/N min max sum mean sd/ ],
-);
-
 pod2usage(1) if $opt{help};
+
+# non-statistical options
+
+my $delimiter  = delete $opt{'delimiter'}   || "\t";
+my $format     = delete $opt{'format'}      || '%.2f';
+my $no_header  = delete $opt{'no-header'};
+my $transverse = delete $opt{'transverse-output'};
+my $quiet      = delete $opt{'quiet'};
+my $strict     = delete $opt{'strict'};
+
+if ($delimiter =~ /^\\[a-z]$/) {
+  $delimiter = $delimiter eq '\t' ? "\t"
+             : $delimiter eq '\n' ? "\n"
+                                  : die "Invalid delimiter: '$delimiter'\n";
+}
+
+if ($format =~ m{( \s* \% [\s+-]? [0-9]*\.?[0-9]* [deEfgGi] \s* )}x) {
+  $format = $1;
+} else {
+  die "Invalid format: '$format'\n";
+}
 
 my ($min,$max);
 my ($n, $sum, $sum_square, $mean) = (0, 0, 0, 0);
@@ -69,7 +82,8 @@ my $keep_data = (
 
 # some functions require that we keep frequencies
 my $keep_frequencies = (
-      defined $opt{mode}
+       defined $opt{mode}
+    || defined $opt{complete}
 );
 
 my $M2 = 0; # used to calculate variance
@@ -156,33 +170,7 @@ my %st = (
   %summary,
 );
 
-# we must delete all the options not related to functions
-
-my $delimiter  = delete $opt{'delimiter'}   || "\t";
-my $format     = delete $opt{'format'}      || '%.2f';
-my $no_header  = delete $opt{'no-header'};
-my $transverse = delete $opt{'transverse-output'};
-my $quiet      = delete $opt{'quiet'};
-my $strict     = delete $opt{'strict'};
-
-if ($delimiter =~ /^\\[a-z]$/) {
-  $delimiter = $delimiter eq '\t' ? "\t"
-             : $delimiter eq '\n' ? "\n"
-                                  : die "Invalid delimiter: '$delimiter'\n";
-}
-
-if ($format =~ m{( \s* \% [\s+-]? [0-9]*\.?[0-9]* [deEfgGi] \s* )}x) {
-  $format = $1;
-} else {
-  die "Invalid format: '$format'\n";
-}
-
-my @opt = !%opt || $opt{default}  ? @{ $predefined{default}  }
-        :          $opt{complete} ? @{ $predefined{complete} }
-        :          $opt{summary}  ? @{ $predefined{summary}  }
-                                  : grep { defined $opt{$_} } @{ $predefined{complete} };
-
-@opt = grep { defined $st{$_} } @opt;
+my @opt = grep { defined $st{$_} } ordered_options(%opt);
 
 if (scalar @opt == 1) {
   print sprintf( $format, $st{$opt[0]} ), "\n";
@@ -225,6 +213,36 @@ sub percentiles {
 
   return @percentiles;
 }
+
+###
+
+sub ordered_options {
+  my %opt = @_;
+
+  # predefined sets
+  my %predefined = (
+    complete => [ qw/N min q1 median q3 max sum mean sd sem variance percentile quartile mode/ ],
+    summary  => [ qw/min q1 median q3 max/ ],
+    default  => [ qw/N min max sum mean sd/ ],
+  );
+
+  # selected options
+  my %selected = map { $_ => 1 } grep { defined $opt{$_} } @{ $predefined{complete} };
+
+  # expand with predefined sets
+  for my $set (keys %predefined) {
+    if ($opt{$set}) {
+      %selected = (%selected, map { $_ => 1 } @{ $predefined{$set} });
+    }
+  }
+
+  my @selected = %selected ? grep { defined $selected{$_} } @{ $predefined{complete} }
+                           : @{ $predefined{default} };
+
+  return @selected;
+}
+
+###
 
 sub valid_input {
   my $num = shift;
