@@ -291,12 +291,12 @@ If no functions are selected, C<st> will print:
 
 =head3 ERROR HANDLING
 
-By default, "st" skips invalid input, with a warning.
+By default, "st" skips invalid input with a warning.
 
 You can change this behavior with the following options:
 
-  --strict   # interrupt process on invalid input
-  --quiet|q  # skip invalid line, with no warning
+  --strict   # interrupt process
+  --quiet|q  # skip with no warning
 
 =head1 AUTHOR
 
