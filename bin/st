@@ -25,7 +25,7 @@ GetOptions(
   'sum|s',
   'variance|var',
 
-  # predefined sets
+  # predefined output sets
   'summary|five',
   'complete|all',
   'default|basic',
@@ -44,6 +44,7 @@ GetOptions(
 ) or pod2usage(1);
 
 
+# predefined output sets
 my %predefined = (
   complete => [ qw/N min q1 median q3 max sum mean sd sem variance percentile quartile mode/ ],
   summary  => [ qw/min q1 median q3 max/ ],
@@ -56,7 +57,7 @@ my ($min,$max);
 my ($n, $sum, $sum_square, $mean) = (0, 0, 0, 0);
 my (%count, $most_common);
 
-# some functions require the full dataset
+# some functions require that we keep the full dataset
 my @data;
 my $keep_data = (
        defined $opt{median}
@@ -66,12 +67,12 @@ my $keep_data = (
     || defined $opt{complete}
 );
 
-# some functions require frequencies
+# some functions require that we keep frequencies
 my $keep_frequencies = (
       defined $opt{mode}
 );
 
-my $M2 = 0;
+my $M2 = 0; # used to calculate variance
 
 # read data
 while (my $num = <>) {
