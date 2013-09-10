@@ -251,12 +251,6 @@ standard input.
 
 =head2 OPTIONS
 
-If no options are used, C<st> will print:
-
-  n min max sum mean sd
-
-For fine-grained control, the following options are available:
-
 =head3 FUNCTIONS
 
   --N|n|count           # sample size
@@ -276,6 +270,10 @@ For fine-grained control, the following options are available:
   --summary   # five-number summary: min q1 median q3 max
   --complete  # everything
 
+If no functions are selected, C<st> will print:
+
+  n min max sum mean sd
+
 =head3 FORMATTING
 
   --delimiter|d=<value>   # default: "\t"
@@ -286,24 +284,12 @@ For fine-grained control, the following options are available:
 
 =head3 ERROR HANDLING
 
-By default, "st" will skip invalid input with a warning.
+By default, "st" skips invalid input, with a warning.
 
 You can change this behavior with the following options:
 
-  --strict                # interrupt process on invalid input
-  --quiet|q               # no warning
-
-=head2 EXAMPLES
-
-  st
-
-  st --summary
-
-  st --complete
-
-  st --transverse-output --format='%5.2f'
-
-  st --no-header --delimiter=',' 
+  --strict   # interrupt process on invalid input
+  --quiet|q  # skip invalid line, with no warning
 
 =head1 AUTHOR
 
