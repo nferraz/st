@@ -78,14 +78,7 @@ my $M2 = 0; # used to calculate variance
 while (my $num = <>) {
   chomp $num;
 
-  if ($num !~ m{^
-    [+-]?
-    (?: \. ? [0-9]+
-      | [0-9]+ \. [0-9]*
-      | \. ? [0-9]+ E [+-]? [0-9]+
-      | [0-9]* \. [0-9]+ E [+-]? [0-9]+
-    )
-  $}x) {
+  if (!valid_input($num)) {
       my $err = "Invalid value '$num' on input line $.\n";
       if ($opt{strict}) {
         die $err;
@@ -231,6 +224,19 @@ sub percentiles {
   }
 
   return @percentiles;
+}
+
+sub valid_input {
+  my $num = shift;
+
+  return ($num =~ m{^
+    [+-]?
+    (?: \. ? [0-9]+
+      | [0-9]+ \. [0-9]*
+      | \. ? [0-9]+ E [+-]? [0-9]+
+      | [0-9]* \. [0-9]+ E [+-]? [0-9]+
+    )
+  $}x);
 }
 
 __END__
