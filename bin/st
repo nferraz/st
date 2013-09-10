@@ -45,49 +45,55 @@ GetOptions(
 
 pod2usage(1) if $opt{help};
 
-# non-statistical options
-
-my $delimiter  = delete $opt{'delimiter'}   || "\t";
-my $format     = delete $opt{'format'}      || '%.2f';
-my $no_header  = delete $opt{'no-header'};
-my $transverse = delete $opt{'transverse-output'};
-my $quiet      = delete $opt{'quiet'};
-my $strict     = delete $opt{'strict'};
-
-if ($delimiter =~ /^\\[a-z]$/) {
-  $delimiter = $delimiter eq '\t' ? "\t"
-             : $delimiter eq '\n' ? "\n"
-                                  : die "Invalid delimiter: '$delimiter'\n";
-}
-
-if ($format =~ m{( \s* \% [\s+-]? [0-9]*\.?[0-9]* [deEfgGi] \s* )}x) {
-  $format = $1;
-} else {
-  die "Invalid format: '$format'\n";
-}
+my %config = get_config(%opt);
 
 my %result = process(%opt);
 
-my @opt = grep { defined $st{$_} } ordered_options(%opt);
+my @opt = grep { defined $result{$_} } statistical_options(%opt);
 
 if (scalar @opt == 1) {
-  print sprintf( $format, $st{$opt[0]} ), "\n";
+  print sprintf( $config{format}, $result{$opt[0]} ), "\n";
   exit;
 }
 
-if ($transverse) {
+if ($config{transverse}) {
   for my $opt (@opt) {
-    print "$opt$delimiter" unless $no_header;
-    print sprintf( $format, $st{$opt} ), "\n";
+    print "$opt$config{delimiter}" unless $config{'no-header'};
+    print sprintf( $config{format}, $result{$opt} ), "\n";
   }
 } else {
-  print join($delimiter, @opt), "\n" unless $no_header;
-  print join($delimiter, map { sprintf ($format, $st{$_}) } @opt), "\n";
+  print join($config{delimiter}, @opt), "\n" unless $config{'no-header'};
+  print join($config{delimiter}, map { sprintf ($config{format}, $result{$_}) } @opt), "\n";
 }
 
 exit;
 
 ###
+
+sub get_config {
+  my %opt = @_;
+
+  my %config = map { $_ => $opt{$_} } grep { defined $opt{$_} } qw/delimiter format no-header transverse-output quiet strict/;
+
+  my $delimiter  = $opt{'delimiter'} || "\t";
+  my $format     = $opt{'format'}    || '%.2f';
+
+  if ($delimiter =~ /^\\[a-z]$/) {
+    $delimiter = $delimiter eq '\t' ? "\t"
+               : $delimiter eq '\n' ? "\n"
+                                    : die "Invalid delimiter: '$delimiter'\n";
+  }
+
+  if ($format =~ m{( \s* \% [\s+-]? [0-9]*\.?[0-9]* [deEfgGi] \s* )}x) {
+    $format = $1;
+  } else {
+    die "Invalid format: '$format'\n";
+  }
+
+  return (%config, delimiter => $delimiter, format => $format);
+
+}
+
 
 sub process {
   my %opt = @_;
@@ -119,9 +125,9 @@ sub process {
 
     if (!valid_input($num)) {
         my $err = "Invalid value '$num' on input line $.\n";
-        if ($strict) {
+        if ($config{strict}) {
           die $err;
-        } elsif (!$quiet) {
+        } elsif (!$config{quiet}) {
           warn $err;
         }
         next;
@@ -225,7 +231,7 @@ sub percentiles {
 
 ###
 
-sub ordered_options {
+sub statistical_options {
   my %opt = @_;
 
   # predefined sets
