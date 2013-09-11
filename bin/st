@@ -30,6 +30,9 @@ GetOptions(
   'complete|all',
   'default|basic',
 
+	# input control
+	'comma|c=s',
+
   # output control
   'delimiter|d=s',
   'format|fmt|f=s',
@@ -48,7 +51,6 @@ pod2usage(1) if $opt{help};
 my %config = get_config(%opt);
 
 my %result = process(%opt);
-
 my @opt = grep { defined $result{$_} } statistical_options(%opt);
 
 if (scalar @opt == 1) {
@@ -119,8 +121,30 @@ sub process {
 
   my $M2 = 0; # used to calculate variance
 
+my $inputdelimiter = $opt{'comma'};
+my @element_arr;
+my $interator;
+	if ($inputdelimiter) {
+		$interator = sub { 
+			unless (scalar @element_arr) {  
+				my $line = <>;  
+				if ($line ne '') {
+					@element_arr = split($inputdelimiter , $line); 
+				}
+				else { return 0; } #if no line done with all files
+			}
+				my $element =  pop @element_arr;
+				$element =~ s/^\s+//;
+				$element =~ s/\s+$//;
+				return $element;
+		}
+	}
+	else {
+		$interator = sub { my $line = <>; return $line; } 
+	}
 
-  while (my $num = <>) {
+
+  while (my $num = $interator->()) {
     chomp $num;
 
     if (!valid_input($num)) {
@@ -313,6 +337,10 @@ standard input.
 If no functions are selected, C<st> will print:
 
   n min max sum mean sd
+
+=head3 INPUT FORMATTING
+
+	--comma|-c=<value> #default: "\n"
 
 =head3 FORMATTING
 
