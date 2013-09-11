@@ -1,0 +1,25 @@
+Revision history for st
+
+1.0.6   Tue Sep 10 19:27:21 2013 +0200
+        --sem (Standard error of mean)
+
+1.0.5   Mon Sep 9 18:14:11 2013 +0200
+        Improved formatting
+        Fixed --strict option
+
+1.0.4   Mon Sep 9 14:04:46 2013 +0200
+        --strict
+
+1.0.3   Fri Sep 6 17:35:31 2013 +0200
+        --transverse-output
+        --quartile
+
+1.0.2   Thu Sep 5 13:55:32 2013 +0200
+        --no-header
+        --quiet
+
+1.0.1   Wed Sep 4 17:53:40 2013 +0200
+        Fixed Makefile.PL
+
+1.0     Wed Sep 4 16:13:48 2013 +0200
+        First version, released on an unsuspecting world.
