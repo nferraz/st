@@ -1,5 +1,9 @@
 Revision history for st
 
+1.0.7   Wed Sep 11 14:28:36 2013 +0200A
+        Renamed: bin/st -> script/st
+        Changes
+
 1.0.6   Tue Sep 10 19:27:21 2013 +0200
         --sem (Standard error of mean)
 
