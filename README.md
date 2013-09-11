@@ -114,6 +114,7 @@ statistics, handy when you need quick results without leaving the shell.
     --min
     --mode
     --sd|stdev
+    --sem|sterr
     --sum|s
     --var|variance
 
