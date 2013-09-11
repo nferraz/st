@@ -56,7 +56,7 @@ if (scalar @opt == 1) {
   exit;
 }
 
-if ($config{transverse}) {
+if ($config{'transverse-output'}) {
   for my $opt (@opt) {
     print "$opt$config{delimiter}" unless $config{'no-header'};
     print sprintf( $config{format}, $result{$opt} ), "\n";
