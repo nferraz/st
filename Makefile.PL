@@ -6,10 +6,8 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
     NAME                => 'st',
     AUTHOR              => q{Nelson Ferraz <nferraz@gmail.com>},
-    ($ExtUtils::MakeMaker::VERSION >= 6.3002
-      ? ('LICENSE'=> 'perl')
-      : ()),
-    EXE_FILES           => [ 'bin/st', ],
+    LICENSE             => 'MIT',
+    EXE_FILES           => [ 'script/st', ],
     PL_FILES            => { },
     PREREQ_PM           => { },
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
