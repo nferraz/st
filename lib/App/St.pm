@@ -38,8 +38,9 @@ sub new {
     q3         => 0,
     max        => undef,
     M2         => 0,
-    delimiter  =>$delimiter,
+    delimiter  => $delimiter,
     format     => $format,
+    data       => [],
   }, $class;
 }
 
@@ -72,6 +73,8 @@ sub process {
 
   $self->{mean} += $delta / $self->{N};
   $self->{M2}   += $delta * ($num - $self->{mean});
+
+  push( @{ $self->{data} }, $num ) if $self->{keep_data};
 }
 
 sub N {
@@ -100,15 +103,18 @@ sub mean {
 }
 
 sub q1 {
-  die "Not implemented\n";
+    my ($self,%opt) = @_;
+    return $self->percentile(0.25, %opt);
 }
 
 sub median {
-  die "Not implemented\n";
+    my ($self,%opt) = @_;
+    return $self->percentile(0.5, %opt);
 }
 
 sub q3 {
-  die "Not implemented\n";
+    my ($self,%opt) = @_;
+    return $self->percentile(0.75, %opt);
 }
 
 sub variance {
@@ -144,6 +150,60 @@ sub stderr {
 
   return $opt{formatted} ? $self->_format($stderr)
                          : $stderr;
+}
+
+sub percentile {
+    my ($self, $p, %opt) = @_;
+
+    my $data = $self->{data};
+
+    if (!$self->{keep_data} or scalar @{$data} == 0) {
+    }
+
+    if ($p < 0 or $p > 1) {
+        die "Invalid percentile '$p'\n";
+    }
+
+    if (!$self->{_is_sorted_}) {
+        $data = [ sort {$a <=> $b} @{ $data } ];
+        $self->{_is_sorted_} = 1;
+    }
+
+    my $N = $self->N();
+    my $idx = ($N - 1) * $p;
+
+    my $percentile =
+        int($idx) == $idx ? $data->[$idx]
+                          : ($data->[$idx] + $data->[$idx+1]) / 2;
+
+    return $opt{formatted} ? _format($percentile)
+                           : $percentile;
+}
+
+sub result {
+    my $self = shift;
+
+    my %result = (
+        N          => $self->N(),
+        sum        => $self->sum(),
+        mean       => $self->mean(),
+        stddev     => $self->stddev(),
+        stderr     => $self->stderr(),
+        min        => $self->min(),
+        max        => $self->max(),
+    );
+
+    if ($self->{keep_data}) {
+        %result = (%result,
+            (
+                q1      => $self->q1(),
+                median  => $self->median(),
+                q3      => $self->q3(),
+            )
+        );
+    }
+
+    return %result;
 }
 
 sub _format {
@@ -184,11 +244,33 @@ App::St provides the core functionality of the L<st> application.
 
 =head1 METHODS
 
-=head2 new(%opt)
+=head2 new(%options)
 
 =head2 validate($num)
 
 =head2 process($num)
+
+=head2 N
+
+=head2 sum
+
+=head2 mean
+
+=head2 stddev
+
+=head2 stderr
+
+=head2 percentile
+
+=head2 min
+
+=head2 q1
+
+=head2 median
+
+=head2 q3
+
+=head2 max
 
 =head1 AUTHOR
 
