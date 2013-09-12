@@ -124,16 +124,17 @@ sub process {
 my $inputdelimiter = $opt{'comma'};
 my @element_arr;
 my $interator;
+
 	if ($inputdelimiter) {
 		$interator = sub { 
 			unless (scalar @element_arr) {  
 				my $line = <>;  
-				if ($line ne '') {
+				if ($line) {
 					@element_arr = split($inputdelimiter , $line); 
 				}
 				else { return 0; } #if no line done with all files
 			}
-				my $element =  pop @element_arr;
+				my $element =  shift @element_arr;
 				$element =~ s/^\s+//;
 				$element =~ s/\s+$//;
 				return $element;
