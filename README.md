@@ -94,7 +94,8 @@ performing other numerical experiments, including statistical tests,
 classification, clustering, etc.
 
 "st" is a simpler solution for simpler problems, focused on descriptive
-statistics, handy when you need quick results without leaving the shell.
+statistics for small datasets, handy when you need quick results
+without leaving the shell.
 
 
 ### Usage
