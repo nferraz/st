@@ -1,7 +1,7 @@
 st
 ==
 
-statistics from the command line interface (CLI)
+simple statistics from the command line interface (CLI)
 
 ### Description
 
@@ -55,14 +55,14 @@ That was easy!
 
 How about mean and standard deviation?
 
-    $ st --mean --sd numbers.txt
-    mean  sd
+    $ st --mean --stddev numbers.txt
+    mean  stddev
     5.50  3.03
 
 If you don't specify any options, you'll get this output:
 
     $ st numbers.txt
-    count  min   max   sum   mean  sd
+    count  min   max   sum   mean  stddev
     10.00  1.00  10.00 55.00 5.50  3.03
 
 You can modify the output format with "--no-header", "--transverse-output"
@@ -109,25 +109,24 @@ without leaving the shell.
 ##### Functions
 
     --N|n|count
-    --max
     --mean|avg|m
-    --median
-    --min
-    --mode
-    --sd|stdev
-    --sem|sterr
+    --stddev|sd
+    --stderr|sem|se
     --sum|s
     --var|variance
 
-    --percentile=<0..100>
-    --quartile=<1..3>
+    --min
+    --q1
+    --median
+    --q3
+    --max
 
     --summary   # five-number summary: min q1 median q3 max
     --complete  # complete results
 
-If no functions are selected, "st" will print:
+If no functions are selected, "st" will print the default output:
 
-    n min max sum mean sd
+    N     min  max  sum  mean  stddev
 
 ##### Formatting
 
@@ -135,7 +134,7 @@ If no functions are selected, "st" will print:
     --format|fmt|f=<value>  # default: "%.2f"
 
     --no-header|nh          # don't display header
-    --transverse-output     # output in multiple lines
+    --transverse-output|to  # multiline output
 
 ##### Error handling
 

@@ -7,28 +7,33 @@ use bignum;
 use Getopt::Long;
 use Pod::Usage;
 
+use App::St;
+
 my %opt;
 GetOptions(
   \%opt,
 
   # functions
   'N|n|count',
-  'max',
   'mean|avg|m',
-  'median',
-  'min',
-  'mode',
-  'percentile=i',
-  'quartile=i',
-  'sd|stdev',
-  'sem|sterr',
+  'stddev|sd',
+  'stderr|sem|se',
   'sum|s',
   'variance|var',
 
+  'min|q0',
+  'q1',
+  'median|q2',
+  'q3',
+  'max|q4',
+  'mode',
+  'percentile=i',
+  'quartile=i',
+
   # predefined output sets
-  'summary|five',
+  'summary',
   'complete|all',
-  'default|basic',
+  'default',
 
   # output control
   'delimiter|d=s',
@@ -46,8 +51,35 @@ GetOptions(
 pod2usage(1) if $opt{help};
 
 my %config = get_config(%opt);
+my @stats  = statistical_options(%opt);
 
-my %result = process(%opt);
+if ($opt{summary} or $opt{complete} or $opt{q1} or $opt{median} or $opt{q3} or $opt{quantile}) {
+    $config{keep_data} = 1;
+}
+
+my $st = App::St->new(%config);
+
+my $n = 0;
+while (my $num = <>) {
+  chomp $num;
+
+  $n++;
+  if (!$st->validate($num)) {
+      my $err = "Invalid value '$num' on input line $.\n";
+      if ($opt{strict}) {
+        die $err;
+      } elsif (!$opt{quiet}) {
+        warn $err;
+      }
+      next;
+  }
+
+  $st->process($num);
+}
+
+exit if $st->N() == 0;
+
+my %result = $st->result();
 
 my @opt = grep { defined $result{$_} } statistical_options(%opt);
 
@@ -94,151 +126,14 @@ sub get_config {
 
 }
 
-
-sub process {
-  my %opt = @_;
-  my ($min,$max);
-  my ($n, $sum, $sum_square, $mean) = (0, 0, 0, 0);
-  my (%count, $most_common);
-
-  # some functions require that we keep the full dataset
-  my @data;
-  my $keep_data = (
-         defined $opt{median}
-      || defined $opt{percentile}
-      || defined $opt{quartile}
-      || defined $opt{summary}
-      || defined $opt{complete}
-  );
-
-  # some functions require that we keep frequencies
-  my $keep_frequencies = (
-         defined $opt{mode}
-      || defined $opt{complete}
-  );
-
-  my $M2 = 0; # used to calculate variance
-
-
-  while (my $num = <>) {
-    chomp $num;
-
-    if (!valid_input($num)) {
-        my $err = "Invalid value '$num' on input line $.\n";
-        if ($config{strict}) {
-          die $err;
-        } elsif (!$config{quiet}) {
-          warn $err;
-        }
-        next;
-    }
-
-    $n++;
-
-    my $delta = $num - $mean;
-
-    $mean += $delta / $n;
-    $M2   += $delta * ($num - $mean);
-
-    if ($keep_data) {
-      push @data, $num;
-    }
-
-    if ($keep_frequencies) {
-      $count{$num}++;
-      $most_common = $count{$num} if (!defined $most_common or $count{$num} > $most_common);
-    }
-
-    $min = $num if (!defined $min or $num < $min);
-    $max = $num if (!defined $max or $num > $max);
-
-    $sum += $num;
-  }
-
-  # silently exit if $n == 0
-  exit if (!$n);
-
-  my ( %summary, $percentile, $quartile, $median );
-  if ( $opt{summary} or $opt{complete} ) {
-    my ($q1, $q2, $q3) = percentiles(\@data, 25, 50, 75);
-    %summary = (
-      min    => $min,
-      q1     => $q1,
-      median => $q2,
-      q3     => $q3,
-      max    => $max,
-    );
-  } elsif (defined $opt{percentile}) {
-    ($percentile) = percentiles( \@data, $opt{percentile} );
-  } elsif (defined $opt{quartile}) {
-    die "Invalid quartile\n" if $opt{quartile} < 0 or $opt{quartile} > 4;
-    ($quartile)   = percentiles( \@data, $opt{quartile} * 25 );
-  } elsif (defined $opt{median}) {
-    ($median)     = percentiles( \@data, 50 );
-  }
-
-  my $variance = $n > 1 ? $M2 / ($n - 1)             : undef;
-  my $sd       = defined $variance ? sqrt($variance) : undef;
-  my $sem      = defined $sd       ? $sd/sqrt($n)    : undef;
-
-  my @mode = grep { $count{$_} == $most_common } keys %count;
-
-  my $mode = scalar @mode == 1 ? $mode[0] : undef; # don't deal with multimodes
-
-  my %result = (
-    N          => $n,
-    max        => $max,
-    mean       => $mean,
-    median     => $median,
-    min        => $min,
-    mode       => $mode,
-    percentile => $percentile,
-    quartile   => $quartile,
-    sd         => $sd,
-    sem        => $sem,
-    sum        => $sum,
-    variance   => $variance,
-    %summary,
-  );
-
-  return %result;
-}
-
-
-
-sub percentiles {
-  my ($data, @p) = @_;
-
-  my @data = sort { $a <=> $b } @{$data};
-
-  my @percentiles = ();
-  for my $p (@p) {
-
-    if ($p < 0 or $p > 100) {
-      die "Invalid percentile ($p)\n";
-    }
-
-    my $index = $p * $#data / 100;
-
-    my $percentile = $index == int($index) ? $data[$index]
-                                           : ($data[$index] + $data[$index+1]) / 2;
-  
-    push @percentiles, $percentile;
-  }
-
-  return @percentiles;
-}
-
-###
-
 sub statistical_options {
   my %opt = @_;
 
   # predefined sets
   my %predefined = (
-    complete => [ qw/N min q1 median q3 max sum mean sd sem variance percentile quartile mode/ ],
+    complete => [ qw/N min q1 median q3 max sum mean stddev stderr variance percentile quartile mode/ ],
     summary  => [ qw/min q1 median q3 max/ ],
-    default  => [ qw/N min max sum mean sd/ ],
+    default  => [ qw/N min max sum mean stddev/ ],
   );
 
   # selected options
@@ -255,21 +150,6 @@ sub statistical_options {
                            : @{ $predefined{default} };
 
   return @selected;
-}
-
-###
-
-sub valid_input {
-  my $num = shift;
-
-  return ($num =~ m{^
-    [+-]?
-    (?: \. ? [0-9]+
-      | [0-9]+ \. [0-9]*
-      | \. ? [0-9]+ E [+-]? [0-9]+
-      | [0-9]* \. [0-9]+ E [+-]? [0-9]+
-    )
-  $}x);
 }
 
 __END__
@@ -299,12 +179,12 @@ standard input.
   --median              # median
   --min                 # minimum
   --mode                # mode
-  --sd|stdev            # standard deviation
-  --sem|sterr           # standard error of mean
+  --stdev|sd            # standard deviation
+  --stderr|sem|se       # standard error of mean
   --sum|s               # sum of elements of the sample
   --variance|var        # variance
 
-  --percentile=<0..100> # percentile (0 < p < 100)
+  --percentile=<0..1>   # percentile (0 < p < 1)
   --quartile=<1..3>     # quartile (1 < q < 3)
 
   --summary   # five-number summary: min q1 median q3 max
@@ -312,7 +192,7 @@ standard input.
 
 If no functions are selected, C<st> will print:
 
-  n min max sum mean sd
+  n min max sum mean stddev
 
 =head3 FORMATTING
 

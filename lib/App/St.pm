@@ -5,6 +5,8 @@ use warnings;
 
 use bignum;
 
+our $VERSION = '1.1.0';
+
 sub new {
   my ($class, %opt) = @_;
 
@@ -220,7 +222,7 @@ __END__
 
 =head1 NAME
 
-  App::St - Simple Statistics
+App::St - Simple Statistics
 
 =head1 DESCRIPTION
 
