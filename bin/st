@@ -74,9 +74,11 @@ my $keep_frequencies = (
 my $M2 = 0;
 
 # read data
-while (my $num = <>) {
+while (my $line = <>) {
+  my  @thisLine = split(/[\r\n\s,]+/,$line);
+  foreach my $num(@thisLine){
   chomp $num;
-
+  next if ($num !~m/^\d+$/);
   if ($num !~ m{^
     [+-]?
     (?: \. ? [0-9]+
@@ -95,7 +97,7 @@ while (my $num = <>) {
   }
 
   $n++;
-
+  
   my $delta = $num - $mean;
 
   $mean += $delta / $n;
@@ -114,6 +116,7 @@ while (my $num = <>) {
   $max = $num if (!defined $max or $num > $max);
 
   $sum += $num;
+  }
 }
 
 # silently exit if $n == 0
