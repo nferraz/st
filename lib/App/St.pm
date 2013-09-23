@@ -3,7 +3,7 @@ package App::St;
 use strict;
 use warnings;
 
-use bignum;
+#use bignum;
 
 our $VERSION = '1.1.0';
 
