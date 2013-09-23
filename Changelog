@@ -1,9 +1,12 @@
 Revision history for st
 
+1.0.9   Mon 23 Sep 2013 16:37:15 CEST
+        Speed improvements
+
 1.0.8   Wed Sep 11 17:10:32 2013 +0200
         Fixed --transverse-output
 
-1.0.7   Wed Sep 11 14:28:36 2013 +0200A
+1.0.7   Wed Sep 11 14:28:36 2013 +0200
         Renamed: bin/st -> script/st
         Changes
 
