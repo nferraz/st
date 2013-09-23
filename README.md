@@ -130,18 +130,17 @@ You can also use the following predefined sets of functions:
 ##### Formatting
 
     --format|fmt|f=<value>  # default: "%g"
+    --delimiter|d=<value>   # default: "\t"
 
-Examples of valid formats:
+    --no-header|nh          # don't display header
+    --transpose-output|to   # switch rows and columns
+
+Examples of valid formats ("--format" option):
 
         %d    signed integer, in decimal
         %e    floating-point number, in scientific notation
         %f    floating-point number, in fixed decimal notation
         %g    floating-point number, in %e or %f notation
-
-    --delimiter|d=<value>   # default: "\t"
-
-    --no-header|nh          # don't display header
-    --transpose-output|to   # switch rows and columns
 
 ##### Input validation
 
