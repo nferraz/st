@@ -75,12 +75,17 @@ You can switch rows and columns using the "--transpose-output" option:
     mean    5.5
     stddev  3.02765
 
-And the "--summary" option will provide the five-number summary:
+The "--summary" option will provide the five-number summary:
 
     $ st --summary numbers.txt
     min   q1    median  q3    max
     1     3.5   5.5     7.5   10
 
+And "--complete" will print a complete description:
+
+    $ st --complete numbers.txt
+    N   min   q1    median  q3    max   sum   mean  stddev  stderr
+    10  1     3.5   5.5     7.5   10    55    5.5   3.02765 0.957427
 
 #### How does it compare with R, Octave and other analytical tools?
 
