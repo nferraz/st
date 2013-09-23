@@ -1,5 +1,9 @@
 Revision history for st
 
+1.1.0   Mon Sep 23 18:38:35 2013 +0200
+        Adopt "%g" as default output format
+        s/transverse/transpose/g
+
 1.0.10  Mon Sep 23 17:18:19 2013 +0200
         Speed improvements
 

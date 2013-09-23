@@ -57,30 +57,29 @@ How about mean and standard deviation?
 
     $ st --mean --stddev numbers.txt
     mean  stddev
-    5.50  3.03
+    5.5   3.02765
 
 If you don't specify any options, you'll get this output:
 
     $ st numbers.txt
-    count  min   max   sum   mean  stddev
-    10.00  1.00  10.00 55.00 5.50  3.03
+    N     min   max   sum   mean  stddev
+    10    1     10    55    5.5   3.02765
 
-You can modify the output format with "--no-header", "--transverse-output"
-and "format":
+You can switch rows and columns using the "--transpose-output" option:
 
-    $ st --no-header --transverse-output --format='%5.1f'
-    10.0
-     1.0
-    10.0
-    55.0
-     5.5
-     3.0
+    $ st --transpose-output numbers.txt
+    N       10
+    min     1
+    max     10
+    sum     55
+    mean    5.5
+    stddev  3.02765
 
 And the "--summary" option will provide the five-number summary:
 
     $ st --summary numbers.txt
     min   q1    median  q3    max
-    1.00  3.50  5.50    7.50  10.00
+    1     3.5   5.5     7.5   10
 
 
 #### How does it compare with R, Octave and other analytical tools?
@@ -100,9 +99,7 @@ without leaving the shell.
 
 ### Usage
 
-    st <file>
-
-    st [options] <file>
+    st [options] [file]
 
 #### Options
 
@@ -121,31 +118,45 @@ without leaving the shell.
     --q3
     --max
 
-    --summary   # five-number summary: min q1 median q3 max
-    --complete  # complete results
-
 If no functions are selected, "st" will print the default output:
 
     N     min  max  sum  mean  stddev
 
+You can also use the following predefined sets of functions:
+
+    --summary   # five-number summary (min q1 median q3 max)
+    --complete  # everything
+
 ##### Formatting
 
+    --format|fmt|f=<value>  # default: "%g"
+
+Examples of valid formats:
+
+        %d    signed integer, in decimal
+        %e    floating-point number, in scientific notation
+        %f    floating-point number, in fixed decimal notation
+        %g    floating-point number, in %e or %f notation
+
     --delimiter|d=<value>   # default: "\t"
-    --format|fmt|f=<value>  # default: "%.2f"
 
     --no-header|nh          # don't display header
-    --transverse-output|to  # multiline output
+    --transpose-output|to   # switch rows and columns
 
-##### Error handling
+##### Input validation
 
 By default, "st" skips invalid input with a warning.
 
 You can change this behavior with the following options:
 
-    --strict   # interrupt process
-    --quiet|q  # skip with no warning
+    --strict   # throws an error, interrupting process
+    --quiet|q  # no warning
 
-### Contributing
+### Author
+
+Nelson Ferraz <<nferraz@gmail.com>>
+
+### Contribute
 
 Send comments, suggestions and bug reports to:
 

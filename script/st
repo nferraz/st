@@ -33,14 +33,14 @@ GetOptions(
 
   # predefined output sets
   'summary',
-  'complete|all',
+  'complete|everything|all',
   'default',
 
   # output control
   'delimiter|d=s',
   'format|fmt|f=s',
   'no-header|nh',
-  'transverse-output|to',
+  'transpose-output|transverse-output|to',
 
   # error handling
   'quiet|q',
@@ -89,7 +89,7 @@ if (scalar @opt == 1) {
   exit;
 }
 
-if ($config{'transverse-output'}) {
+if ($config{'transpose-output'}) {
   for my $opt (@opt) {
     print "$opt$config{delimiter}" unless $config{'no-header'};
     print sprintf( $config{format}, $result{$opt} ), "\n";
@@ -106,10 +106,10 @@ exit;
 sub get_config {
   my %opt = @_;
 
-  my %config = map { $_ => $opt{$_} } grep { defined $opt{$_} } qw/delimiter format no-header transverse-output quiet strict/;
+  my %config = map { $_ => $opt{$_} } grep { defined $opt{$_} } qw/delimiter format no-header transpose-output quiet strict/;
 
   my $delimiter  = $opt{'delimiter'} || "\t";
-  my $format     = $opt{'format'}    || '%.2f';
+  my $format     = $opt{'format'}    || '%g';
 
   if ($delimiter =~ /^\\[a-z]$/) {
     $delimiter = $delimiter eq '\t' ? "\t"
@@ -157,18 +157,16 @@ __END__
 
 =head1 NAME
 
-st - statistics from the command line interface (CLI)
+st - simple statistics from the command line interface (CLI)
 
 =head1 DESCRIPTION
 
-"st" is a command-line tool to calculate statistics from a file or
-standard input.
+C<st> is a command-line tool to calculate simple statistics from a
+file or standard input.
 
 =head1 USAGE
 
-  st <input_file>
-
-  st [options] <input_file>
+  st [options] [input_file]
 
 =head2 OPTIONS
 
@@ -179,44 +177,50 @@ standard input.
   --mean|average|avg|m  # mean
   --median              # median
   --min                 # minimum
-  --mode                # mode
   --stdev|sd            # standard deviation
   --stderr|sem|se       # standard error of mean
   --sum|s               # sum of elements of the sample
   --variance|var        # variance
 
-  --percentile=<0..1>   # percentile (0 < p < 1)
-  --quartile=<1..3>     # quartile (1 < q < 3)
+If no functions are selected, C<st> will print the default output:
 
-  --summary   # five-number summary: min q1 median q3 max
+    N     min  max  sum  mean  stddev
+
+You can also use the following predefined sets of functions:
+
+  --summary   # five-number summary (min q1 median q3 max)
   --complete  # everything
-
-If no functions are selected, C<st> will print:
-
-  n min max sum mean stddev
 
 =head3 FORMATTING
 
+    --format|fmt|f=<value>  # default: "%g"
+
+Examples of valid formats:
+
+      %d    signed integer, in decimal
+      %e    floating-point number, in scientific notation
+      %f    floating-point number, in fixed decimal notation
+      %g    floating-point number, in %e or %f notation
+
   --delimiter|d=<value>   # default: "\t"
-  --format|fmt|f=<value>  # default: "%.2f"
 
   --no-header|nh          # don't display header
-  --transverse-output|to  # output in multiple lines
+  --transpose-output|to   # switch rows and columns
 
-=head3 ERROR HANDLING
+=head3 INPUT VALIDATION
 
-By default, "st" skips invalid input with a warning.
+By default, C<st> skips invalid input with a warning.
 
 You can change this behavior with the following options:
 
-  --strict   # interrupt process
-  --quiet|q  # skip with no warning
+  --strict   # throws an error, interrupting process
+  --quiet|q  # no warning
 
 =head1 AUTHOR
 
 Nelson Ferraz L<<nferraz@gmail.com>>
 
-=head1 CONTRIBUTING
+=head1 CONTRIBUTE
 
 Send comments, suggestions and bug reports to:
 
