@@ -9,7 +9,7 @@ use File::Copy;
 my %opt;
 GetOptions(
   \%opt,
-  'rename|rename-script=s'
+  'rename|script-name=s'
 );
 
 my $DEFAULT_SCRIPT_NAME = "st";
@@ -39,8 +39,6 @@ if ($opt{rename} and $opt{rename} =~ /^(\w+)$/) {
 
   $script_name = $new_script_name;
 }
-
-warn "script_name=$script_name\n";
 
 WriteMakefile(
     NAME                => 'App::St',
