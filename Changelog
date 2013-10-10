@@ -1,5 +1,8 @@
 Revision history for st
 
+1.1.1   Thu Oct 10 19:37:41 2013 +0200
+        Makefile.PL allows script renaming
+
 1.1.0   Mon Sep 23 18:38:35 2013 +0200
         Adopt "%g" as default output format
         s/transverse/transpose/g
