@@ -5,3 +5,26 @@ Installation
     make
     make test
     sudo make install
+
+
+Renaming the script
+-------------------
+
+Use the "--script-name" option to specify a different script name:
+
+    perl Makefile.PL --script-name=<new name>
+    make
+    make test
+    sudo make install
+
+(This option may be useful if the default script name ("st") conflicts
+with an application with the same name.)
+
+
+Making a distribution
+---------------------
+
+  perl Makefile.PL [--script-name=<new name>]
+  make manifest
+  make dist
+
