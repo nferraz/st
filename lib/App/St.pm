@@ -167,6 +167,7 @@ sub percentile {
 
     if (!$self->{_is_sorted_}) {
         $data = [ sort {$a <=> $b} @{ $data } ];
+        $self->{data} = $data;
         $self->{_is_sorted_} = 1;
     }
 

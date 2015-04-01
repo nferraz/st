@@ -9,7 +9,7 @@ use App::St;
 
 my $st = App::St->new( keep_data => 1 );
 
-for my $num (1..10) {
+for my $num (reverse 1..10) {
   $st->process($num);
 }
 
