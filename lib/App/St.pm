@@ -193,6 +193,7 @@ sub result {
         stderr     => $self->stderr(),
         min        => $self->min(),
         max        => $self->max(),
+        variance   => $self->variance(),
     );
 
     if ($self->{keep_data}) {
