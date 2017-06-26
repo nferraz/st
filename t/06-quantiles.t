@@ -13,7 +13,16 @@ for my $num (1..10) {
   $st->process($num);
 }
 
-plan tests => 2;
+my %quartiles = (
+    0 => 1,
+    1 => 3.5,
+    2 => 5.5,
+    3 => 7.5,
+    4 => 10,
+);
 
-is( $st->q1(), 3.5 );
-is( $st->q3(), 7.5 );
+plan tests => scalar keys %quartiles;
+
+for my $q (keys %quartiles) {
+    is($st->quartile($q), $quartiles{$q});
+}

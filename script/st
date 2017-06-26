@@ -54,12 +54,19 @@ pod2usage(1) if $opt{help};
 my %config = get_config(%opt);
 my @stats  = statistical_options(%opt);
 
-if ($opt{summary} or $opt{complete} or $opt{q1} or $opt{median} or $opt{q3} or defined $opt{quantile} or defined $opt{percentile}) {
+if (   $opt{summary}
+    or $opt{complete}
+    or $opt{q1}
+    or $opt{median}
+    or $opt{q3}
+    or defined $opt{percentile}
+    or defined $opt{quartile} )
+{
     $config{keep_data} = 1;
 }
 
-# special cases: quantile and percentile are not booleans
-my %special_parameters = map { $_ => $opt{$_} } grep { exists $opt{$_} } qw/quantile percentile/;
+# special cases: percentile and quartile are not booleans
+my %special_parameters = map { $_ => $opt{$_} } grep { exists $opt{$_} } qw/percentile quartile/;
 
 my $st = App::St->new(%config, %special_parameters);
 
@@ -191,7 +198,7 @@ memory, which can be problematic for huge datasets:
   --median|q2           # second quartile, or median
   --q3                  # third quartile
   --percentile=f        # percentile=<0..1>
-  --quartile=i          # quartile=<0..4>
+  --quartile=i          # quartile=<1..4>
 
 If no functions are selected, C<st> will print the default output:
 

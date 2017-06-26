@@ -1,7 +1,7 @@
 Revision history for st
 
 1.1.3   Mon Jun 26 12:58:00 2017 +0200
-        Fixed --percentile option
+        Fixed --percentile and --quartile options
 
 1.1.2   Wed Apr 1 18:43:12 2015 +0200
         Bugfix: sorted data was not cached

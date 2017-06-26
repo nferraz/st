@@ -104,19 +104,17 @@ sub mean {
                          : $mean;
 }
 
-sub q1 {
-    my ($self,%opt) = @_;
-    return $self->percentile(0.25, %opt);
+sub quartile {
+    my ($self,$q,%opt) = @_;
+    if ($q !~ /^[01234]$/) {
+        die "Invalid quartile '$q'\n";
+    }
+    return $self->percentile($q/4, %opt);
 }
 
 sub median {
     my ($self,%opt) = @_;
     return $self->percentile(0.5, %opt);
-}
-
-sub q3 {
-    my ($self,%opt) = @_;
-    return $self->percentile(0.75, %opt);
 }
 
 sub variance {
@@ -201,9 +199,9 @@ sub result {
     if ($self->{keep_data}) {
         %result = (%result,
             (
-                q1      => $self->q1(),
+                q1      => $self->quartile(1),
                 median  => $self->median(),
-                q3      => $self->q3(),
+                q3      => $self->quartile(3),
             )
         );
     }
@@ -212,6 +210,13 @@ sub result {
         %result = (
             %result,
             percentile => $self->percentile($self->{percentile}),
+        );
+    }
+
+    if (exists $self->{quartile}) {
+        %result = (
+            %result,
+            quartile => $self->quartile($self->{quartile}),
         );
     }
 
@@ -272,7 +277,9 @@ App::St provides the core functionality of the L<st> application.
 
 =head2 stderr
 
-=head2 percentile
+=head2 percentile=<0..1>
+
+=head2 quartile=<0..4>
 
 =head2 min
 

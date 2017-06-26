@@ -123,6 +123,9 @@ without leaving the shell.
     --q3
     --max
 
+    --percentile=<0..1>
+    --quartile=<1..4>
+
 If no functions are selected, "st" will print the default output:
 
     N     min  max  sum  mean  stddev
