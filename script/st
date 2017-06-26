@@ -5,6 +5,7 @@ use warnings;
 
 #use bignum;
 
+use Data::Dumper;
 use Getopt::Long;
 use Pod::Usage;
 
@@ -27,8 +28,7 @@ GetOptions(
   'median|q2',
   'q3',
   'max|q4',
-  'mode',
-  'percentile=i',
+  'percentile=f',
   'quartile=i',
 
   # predefined output sets
@@ -54,11 +54,14 @@ pod2usage(1) if $opt{help};
 my %config = get_config(%opt);
 my @stats  = statistical_options(%opt);
 
-if ($opt{summary} or $opt{complete} or $opt{q1} or $opt{median} or $opt{q3} or $opt{quantile} or $opt{percentile}) {
+if ($opt{summary} or $opt{complete} or $opt{q1} or $opt{median} or $opt{q3} or defined $opt{quantile} or defined $opt{percentile}) {
     $config{keep_data} = 1;
 }
 
-my $st = App::St->new(%config);
+# special cases: quantile and percentile are not booleans
+my %special_parameters = map { $_ => $opt{$_} } grep { exists $opt{$_} } qw/quantile percentile/;
+
+my $st = App::St->new(%config, %special_parameters);
 
 my $n = 0;
 while (my $num = <>) {
@@ -82,7 +85,7 @@ exit if $st->N() == 0;
 
 my %result = $st->result();
 
-my @opt = grep { defined $result{$_} } statistical_options(%opt);
+my @opt = grep { exists $result{$_} } statistical_options(%opt);
 
 if (scalar @opt == 1) {
   print sprintf( $config{format}, $result{$opt[0]} ), "\n";
@@ -106,7 +109,7 @@ exit;
 sub get_config {
   my %opt = @_;
 
-  my %config = map { $_ => $opt{$_} } grep { defined $opt{$_} } qw/delimiter format no-header transpose-output quiet strict/;
+  my %config = map { $_ => $opt{$_} } grep { exists $opt{$_} } qw/delimiter format no-header transpose-output quiet strict/;
 
   my $delimiter  = $opt{'delimiter'} || "\t";
   my $format     = $opt{'format'}    || '%g';
@@ -132,13 +135,13 @@ sub statistical_options {
 
   # predefined sets
   my %predefined = (
-    complete => [ qw/N min q1 median q3 max sum mean stddev stderr variance percentile quartile mode/ ],
+    complete => [ qw/N min q1 median q3 max sum mean stddev stderr variance percentile quartile/ ],
     summary  => [ qw/min q1 median q3 max/ ],
     default  => [ qw/N min max sum mean stddev/ ],
   );
 
   # selected options
-  my %selected = map { $_ => 1 } grep { defined $opt{$_} } @{ $predefined{complete} };
+  my %selected = map { $_ => 1 } grep { exists $opt{$_} } @{ $predefined{complete} };
 
   # expand with predefined sets
   for my $set (keys %predefined) {
@@ -147,7 +150,7 @@ sub statistical_options {
     }
   }
 
-  my @selected = %selected ? grep { defined $selected{$_} } @{ $predefined{complete} }
+  my @selected = %selected ? grep { exists $selected{$_} } @{ $predefined{complete} }
                            : @{ $predefined{default} };
 
   return @selected;
@@ -173,14 +176,22 @@ file or standard input.
 =head3 FUNCTIONS
 
   --N|n|count           # sample size
+  --min                 # minimum
   --max                 # maximum
   --mean|average|avg|m  # mean
-  --median              # median
-  --min                 # minimum
   --stdev|sd            # standard deviation
   --stderr|sem|se       # standard error of mean
   --sum|s               # sum of elements of the sample
   --variance|var        # variance
+
+The following options require that the whole dataset is stored in
+memory, which can be problematic for huge datasets:
+
+  --q1                  # first quartile
+  --median|q2           # second quartile, or median
+  --q3                  # third quartile
+  --percentile=f        # percentile=<0..1>
+  --quartile=i          # quartile=<0..4>
 
 If no functions are selected, C<st> will print the default output:
 

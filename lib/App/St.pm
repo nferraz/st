@@ -25,7 +25,6 @@ sub new {
     die "Invalid format: '$format'\n";
   }
 
-
   return bless {
     %opt,
     N          => 0,
@@ -161,6 +160,7 @@ sub percentile {
     my $data = $self->{data};
 
     if (!$self->{keep_data} or scalar @{$data} == 0) {
+        die "Can't get percentile from empty dataset\n";
     }
 
     if ($p < 0 or $p > 1) {
@@ -205,6 +205,13 @@ sub result {
                 median  => $self->median(),
                 q3      => $self->q3(),
             )
+        );
+    }
+
+    if (exists $self->{percentile}) {
+        %result = (
+            %result,
+            percentile => $self->percentile($self->{percentile}),
         );
     }
 
