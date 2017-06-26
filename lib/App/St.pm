@@ -26,7 +26,7 @@ sub new {
   }
 
 
-  bless {
+  return bless {
     %opt,
     N          => 0,
     sum        => 0,
@@ -76,6 +76,8 @@ sub process {
   $self->{M2}   += $delta * ($num - $self->{mean});
 
   push( @{ $self->{data} }, $num ) if $self->{keep_data};
+
+  return;
 }
 
 sub N {
