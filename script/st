@@ -197,7 +197,7 @@ memory, which can be problematic for huge datasets:
   --q1                  # first quartile
   --median|q2           # second quartile, or median
   --q3                  # third quartile
-  --percentile=f        # percentile=<0..1>
+  --percentile=f        # percentile=<0..100>
   --quartile=i          # quartile=<1..4>
 
 If no functions are selected, C<st> will print the default output:

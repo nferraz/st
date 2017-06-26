@@ -15,9 +15,9 @@ for my $num (reverse 1..10) {
 
 my %percentiles = (
     0   => 1,
-    0.5 => 5.5,
-    0.9 => 9.5,
-    1   => 10,
+    50  => 5.5,
+    90  => 9.5,
+    100 => 10,
 );
 
 plan tests => scalar keys %percentiles;

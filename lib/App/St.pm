@@ -109,12 +109,12 @@ sub quartile {
     if ($q !~ /^[01234]$/) {
         die "Invalid quartile '$q'\n";
     }
-    return $self->percentile($q/4, %opt);
+    return $self->percentile($q / 4 * 100, %opt);
 }
 
 sub median {
     my ($self,%opt) = @_;
-    return $self->percentile(0.5, %opt);
+    return $self->percentile(50, %opt);
 }
 
 sub variance {
@@ -161,7 +161,7 @@ sub percentile {
         die "Can't get percentile from empty dataset\n";
     }
 
-    if ($p < 0 or $p > 1) {
+    if ($p < 0 or $p > 100) {
         die "Invalid percentile '$p'\n";
     }
 
@@ -172,7 +172,7 @@ sub percentile {
     }
 
     my $N = $self->N();
-    my $idx = ($N - 1) * $p;
+    my $idx = ($N - 1) * $p / 100;
 
     my $percentile =
         int($idx) == $idx ? $data->[$idx]
@@ -277,7 +277,7 @@ App::St provides the core functionality of the L<st> application.
 
 =head2 stderr
 
-=head2 percentile=<0..1>
+=head2 percentile=<0..100>
 
 =head2 quartile=<0..4>
 
