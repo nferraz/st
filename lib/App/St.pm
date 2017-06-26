@@ -5,7 +5,7 @@ use warnings;
 
 #use bignum;
 
-our $VERSION = '1.1.2';
+our $VERSION = '1.1.3';
 
 sub new {
   my ($class, %opt) = @_;
