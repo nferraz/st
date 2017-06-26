@@ -16,6 +16,7 @@ for my $num (reverse 1..10) {
 my %percentiles = (
     0   => 1,
     0.5 => 5.5,
+    0.9 => 9.5,
     1   => 10,
 );
 

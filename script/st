@@ -54,7 +54,7 @@ pod2usage(1) if $opt{help};
 my %config = get_config(%opt);
 my @stats  = statistical_options(%opt);
 
-if ($opt{summary} or $opt{complete} or $opt{q1} or $opt{median} or $opt{q3} or $opt{quantile}) {
+if ($opt{summary} or $opt{complete} or $opt{q1} or $opt{median} or $opt{q3} or $opt{quantile} or $opt{percentile}) {
     $config{keep_data} = 1;
 }
 
