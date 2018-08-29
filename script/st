@@ -186,7 +186,7 @@ file or standard input.
   --min                 # minimum
   --max                 # maximum
   --mean|average|avg|m  # mean
-  --stdev|sd            # standard deviation
+  --stddev|sd            # standard deviation
   --stderr|sem|se       # standard error of mean
   --sum|s               # sum of elements of the sample
   --variance|var        # variance
