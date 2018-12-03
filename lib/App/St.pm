@@ -54,8 +54,6 @@ sub validate {
 sub process {
   my ($self, $num) = @_;
 
-  die "Invalid input '$num'\n" if !$self->validate($num);
-
   $self->{N}++;
 
   $self->{sum} += $num;
