@@ -71,12 +71,9 @@ my %special_parameters = map { $_ => $opt{$_} } grep { exists $opt{$_} } qw/perc
 
 my $st = App::St->new(%config, %special_parameters);
 
-my $n = 0;
-
 while (my $num = <>) {
   chomp $num;
 
-  $n++;
   if (!looks_like_number($num)) {
       my $err = "Invalid value '$num' on input line $.\n";
       if ($opt{strict}) {
