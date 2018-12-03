@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 #use bignum;
+use Scalar::Util qw(looks_like_number);
 
 our $VERSION = '1.1.3';
 
@@ -46,15 +47,8 @@ sub new {
 }
 
 sub validate {
-  my ($self, $num) = @_;
-
-  return ($num =~ m{^
-    [+-]?
-    (?: \. ? [0-9]+
-      | [0-9]+ \. [0-9]*
-      | [0-9]* \. ? [0-9]+ [Ee] [+-]? [0-9]+
-    )
-  $}x);
+  my (undef, $num) = @_;
+  return looks_like_number($num);
 }
 
 sub process {
