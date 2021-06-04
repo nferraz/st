@@ -9,15 +9,17 @@ use File::Copy;
 my %opt;
 GetOptions(
   \%opt,
-  'rename|script-name=s'
+  'rename|script-name=s',
+  'standalone=s'
 );
 
 my $DEFAULT_SCRIPT_NAME = "st";
 
 my $script_name = $DEFAULT_SCRIPT_NAME;
+my $standalone;
 
 # rename script if necessary
-if ($opt{rename} and $opt{rename} =~ /^(\w+)$/) {
+if ($opt{rename} and $opt{rename} =~ /^([\w\-]+)$/) {
   my $new_script_name = $1;
 
   open my $in,  '<', "script/$DEFAULT_SCRIPT_NAME" or die "Can't read 'script/$DEFAULT_SCRIPT_NAME': $!";
@@ -38,6 +40,20 @@ if ($opt{rename} and $opt{rename} =~ /^(\w+)$/) {
   close $in;
 
   $script_name = $new_script_name;
+} elsif ($opt{standalone} and $opt{standalone} =~ /^([\w\-]+)$/) {
+  $standalone = $1;
+  open my $out, '>', "script/$standalone" or die "Can't write to 'script/$standalone': $!";
+  local @ARGV = ('script/' . $DEFAULT_SCRIPT_NAME, 'lib/App/St.pm');
+  while (<>) {
+    if (/^(?:use\sApp::St;|__END__)$/) {
+      $_ = "#$_";
+    } elsif (/^package\sApp::St;$/) {
+      $_ = "\n=cut\n\n$_";
+    } elsif (/^1;$/) {
+      last;
+    }
+    print $out $_;
+  }
 }
 
 WriteMakefile(
@@ -46,7 +62,7 @@ WriteMakefile(
     VERSION_FROM        => 'lib/App/St.pm',
     ABSTRACT_FROM       => 'lib/App/St.pm',
     LICENSE             => 'MIT',
-    EXE_FILES           => [ "script/$script_name", ],
+    EXE_FILES           => [ "script/$script_name", $standalone ? "script/$standalone" : () ],
     PL_FILES            => { },
     MIN_PERL_VERSION    => 5.006,
     CONFIGURE_REQUIRES  => {

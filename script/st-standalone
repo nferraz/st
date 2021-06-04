@@ -1,0 +1,501 @@
+#!perl
+
+use strict;
+use warnings;
+
+#use bignum;
+
+use Data::Dumper;
+use Getopt::Long;
+use Pod::Usage;
+
+#use App::St;
+
+my %opt;
+GetOptions(
+  \%opt,
+
+  # functions
+  'N|n|count',
+  'mean|avg|m',
+  'stddev|sd',
+  'stderr|sem|se',
+  'sum|s',
+  'variance|var',
+
+  'min|q0',
+  'q1',
+  'median|q2',
+  'q3',
+  'max|q4',
+  'percentile=f',
+  'quartile=i',
+
+  # predefined output sets
+  'summary',
+  'complete|everything|all',
+  'default',
+
+  # output control
+  'delimiter|d=s',
+  'format|fmt|f=s',
+  'no-header|nh',
+  'transpose-output|transverse-output|to',
+
+  # error handling
+  'quiet|q',
+  'strict',
+
+  'help|h',
+) or pod2usage(1);
+
+pod2usage(1) if $opt{help};
+
+my %config = get_config(%opt);
+my @stats  = statistical_options(%opt);
+
+if (   $opt{summary}
+    or $opt{complete}
+    or $opt{q1}
+    or $opt{median}
+    or $opt{q3}
+    or defined $opt{percentile}
+    or defined $opt{quartile} )
+{
+    $config{keep_data} = 1;
+}
+
+# special cases: percentile and quartile are not booleans
+my %special_parameters = map { $_ => $opt{$_} } grep { exists $opt{$_} } qw/percentile quartile/;
+
+my $st = App::St->new(%config, %special_parameters);
+
+my $n = 0;
+while (my $num = <>) {
+  chomp $num;
+
+  $n++;
+  if (!$st->validate($num)) {
+      my $err = "Invalid value '$num' on input line $.\n";
+      if ($opt{strict}) {
+        die $err;
+      } elsif (!$opt{quiet}) {
+        warn $err;
+      }
+      next;
+  }
+
+  $st->process($num);
+}
+
+exit if $st->N() == 0;
+
+my %result = $st->result();
+
+my @opt = grep { exists $result{$_} } statistical_options(%opt);
+
+if (scalar @opt == 1) {
+  print sprintf( $config{format}, $result{$opt[0]} ), "\n";
+  exit;
+}
+
+if ($config{'transpose-output'}) {
+  for my $opt (@opt) {
+    print "$opt$config{delimiter}" unless $config{'no-header'};
+    print sprintf( $config{format}, $result{$opt} ), "\n";
+  }
+} else {
+  print join($config{delimiter}, @opt), "\n" unless $config{'no-header'};
+  print join($config{delimiter}, map { sprintf ($config{format}, $result{$_}) } @opt), "\n";
+}
+
+exit;
+
+###
+
+sub get_config {
+  my %opt = @_;
+
+  my %config = map { $_ => $opt{$_} } grep { exists $opt{$_} } qw/delimiter format no-header transpose-output quiet strict/;
+
+  my $delimiter  = $opt{'delimiter'} || "\t";
+  my $format     = $opt{'format'}    || '%g';
+
+  if ($delimiter =~ /^\\[a-z]$/) {
+    $delimiter = $delimiter eq '\t' ? "\t"
+               : $delimiter eq '\n' ? "\n"
+                                    : die "Invalid delimiter: '$delimiter'\n";
+  }
+
+  if ($format =~ m{( \s* \% [\s+-]? [0-9]*\.?[0-9]* [deEfgGi] \s* )}x) {
+    $format = $1;
+  } else {
+    die "Invalid format: '$format'\n";
+  }
+
+  return (%config, delimiter => $delimiter, format => $format);
+
+}
+
+sub statistical_options {
+  my %opt = @_;
+
+  # predefined sets
+  my %predefined = (
+    complete => [ qw/N min q1 median q3 max sum mean stddev stderr variance percentile quartile/ ],
+    summary  => [ qw/min q1 median q3 max/ ],
+    default  => [ qw/N min max sum mean stddev/ ],
+  );
+
+  # selected options
+  my %selected = map { $_ => 1 } grep { exists $opt{$_} } @{ $predefined{complete} };
+
+  # expand with predefined sets
+  for my $set (keys %predefined) {
+    if ($opt{$set}) {
+      %selected = (%selected, map { $_ => 1 } @{ $predefined{$set} });
+    }
+  }
+
+  my @selected = %selected ? grep { exists $selected{$_} } @{ $predefined{complete} }
+                           : @{ $predefined{default} };
+
+  return @selected;
+}
+
+#__END__
+
+=head1 NAME
+
+st - simple statistics from the command line interface (CLI)
+
+=head1 DESCRIPTION
+
+C<st> is a command-line tool to calculate simple statistics from a
+file or standard input.
+
+=head1 USAGE
+
+  st [options] [input_file]
+
+=head2 OPTIONS
+
+=head3 FUNCTIONS
+
+  --N|n|count           # sample size
+  --min                 # minimum
+  --max                 # maximum
+  --mean|average|avg|m  # mean
+  --stdev|sd            # standard deviation
+  --stderr|sem|se       # standard error of mean
+  --sum|s               # sum of elements of the sample
+  --variance|var        # variance
+
+The following options require that the whole dataset is stored in
+memory, which can be problematic for huge datasets:
+
+  --q1                  # first quartile
+  --median|q2           # second quartile, or median
+  --q3                  # third quartile
+  --percentile=f        # percentile=<0..100>
+  --quartile=i          # quartile=<1..4>
+
+If no functions are selected, C<st> will print the default output:
+
+    N     min  max  sum  mean  stddev
+
+You can also use the following predefined sets of functions:
+
+  --summary   # five-number summary (min q1 median q3 max)
+  --complete  # everything
+
+=head3 FORMATTING
+
+    --format|fmt|f=<value>  # default: "%g"
+
+Examples of valid formats:
+
+      %d    signed integer, in decimal
+      %e    floating-point number, in scientific notation
+      %f    floating-point number, in fixed decimal notation
+      %g    floating-point number, in %e or %f notation
+
+  --delimiter|d=<value>   # default: "\t"
+
+  --no-header|nh          # don't display header
+  --transpose-output|to   # switch rows and columns
+
+=head3 INPUT VALIDATION
+
+By default, C<st> skips invalid input with a warning.
+
+You can change this behavior with the following options:
+
+  --strict   # throws an error, interrupting process
+  --quiet|q  # no warning
+
+=head1 AUTHOR
+
+Nelson Ferraz L<<nferraz@gmail.com>>
+
+=head1 CONTRIBUTE
+
+Send comments, suggestions and bug reports to:
+
+https://github.com/nferraz/st/issues
+
+Or fork the code on github:
+
+https://github.com/nferraz/st
+
+=head2 THANKS
+
+imurray, who suggested a different algorithm for calculating variance.
+
+asgeirn, who suggested a input filter and helped to remove some
+warnings.
+
+gabeguz, who modified the script to make it more portable.
+
+=head1 COPYRIGHT
+
+Copyright (c) 2013 Nelson Ferraz.
+
+This program is free software; you can redistribute it and/or modify
+it under the MIT License (see LICENSE).
+
+=cut
+
+package App::St;
+
+use strict;
+use warnings;
+
+#use bignum;
+
+our $VERSION = '1.1.3';
+
+sub new {
+  my ($class, %opt) = @_;
+
+  my $delimiter  = $opt{'delimiter'} || "\t";
+  my $format     = $opt{'format'}    || '%.2f';
+
+  if ($delimiter =~ /^\\[a-z]$/) {
+    $delimiter = $delimiter eq '\t' ? "\t"
+               : $delimiter eq '\n' ? "\n"
+                                    : die "Invalid delimiter: '$delimiter'\n";
+  }
+
+  if ($format =~ m{( \s* \% [\s+-]? [0-9]*\.?[0-9]* [deEfgGi] \s* )}x) {
+    $format = $1;
+  } else {
+    die "Invalid format: '$format'\n";
+  }
+
+  return bless {
+    %opt,
+    N          => 0,
+    sum        => 0,
+    sum_square => 0,
+    mean       => 0,
+    stddev     => 0,
+    stderr     => 0,
+    min        => undef,
+    q1         => 0,
+    median     => 0,
+    q3         => 0,
+    max        => undef,
+    M2         => 0,
+    delimiter  => $delimiter,
+    format     => $format,
+    data       => [],
+  }, $class;
+}
+
+sub validate {
+  my ($self, $num) = @_;
+
+  return ($num =~ m{^
+    [+-]?
+    (?: \. ? [0-9]+
+      | [0-9]+ \. [0-9]*
+      | [0-9]* \. ? [0-9]+ [Ee] [+-]? [0-9]+
+    )
+  $}x);
+}
+
+sub process {
+  my ($self, $num) = @_;
+
+  die "Invalid input '$num'\n" if !$self->validate($num);
+
+  $self->{N}++;
+
+  $self->{sum} += $num;
+
+  $self->{min} = $num if (!defined $self->{min} or $num < $self->{min});
+  $self->{max} = $num if (!defined $self->{max} or $num > $self->{max});
+
+  my $delta = $num - $self->{mean};
+
+  $self->{mean} += $delta / $self->{N};
+  $self->{M2}   += $delta * ($num - $self->{mean});
+
+  push( @{ $self->{data} }, $num ) if $self->{keep_data};
+
+  return;
+}
+
+sub N {
+  return $_[0]->{N};
+}
+
+sub sum {
+  return $_[0]->{sum};
+}
+
+sub min {
+  return $_[0]->{min};
+}
+
+sub max {
+  return $_[0]->{max};
+}
+
+sub mean {
+  my ($self,%opt) = @_;
+
+  my $mean = $self->{mean};
+
+  return $opt{formatted} ? $self->_format($mean)
+                         : $mean;
+}
+
+sub quartile {
+    my ($self,$q,%opt) = @_;
+    if ($q !~ /^[01234]$/) {
+        die "Invalid quartile '$q'\n";
+    }
+    return $self->percentile($q / 4 * 100, %opt);
+}
+
+sub median {
+    my ($self,%opt) = @_;
+    return $self->percentile(50, %opt);
+}
+
+sub variance {
+  my ($self,%opt) = @_;
+
+  my $N  = $self->{N};
+  my $M2 = $self->{M2};
+
+  my $variance = $N > 1 ? $M2 / ($N - 1) : undef;
+
+  return $opt{formatted} ? $self->_format($variance)
+                         : $variance;
+}
+
+sub stddev {
+  my ($self,%opt) = @_;
+
+  my $variance = $self->variance();
+
+  my $stddev = defined $variance ? sqrt($variance) : undef;
+
+  return $opt{formatted} ? $self->_format($stddev)
+                         : $stddev;
+}
+
+sub stderr {
+  my ($self,%opt) = shift;
+
+  my $stddev = $self->stddev();
+  my $N      = $self->N();
+
+  my $stderr  = defined $stddev ? $stddev/sqrt($N) : undef;
+
+  return $opt{formatted} ? $self->_format($stderr)
+                         : $stderr;
+}
+
+sub percentile {
+    my ($self, $p, %opt) = @_;
+
+    my $data = $self->{data};
+
+    if (!$self->{keep_data} or scalar @{$data} == 0) {
+        die "Can't get percentile from empty dataset\n";
+    }
+
+    if ($p < 0 or $p > 100) {
+        die "Invalid percentile '$p'\n";
+    }
+
+    if (!$self->{_is_sorted_}) {
+        $data = [ sort {$a <=> $b} @{ $data } ];
+        $self->{data} = $data;
+        $self->{_is_sorted_} = 1;
+    }
+
+    my $N = $self->N();
+    my $idx = ($N - 1) * $p / 100;
+
+    my $percentile =
+        int($idx) == $idx ? $data->[$idx]
+                          : ($data->[$idx] + $data->[$idx+1]) / 2;
+
+    return $opt{formatted} ? _format($percentile)
+                           : $percentile;
+}
+
+sub result {
+    my $self = shift;
+
+    my %result = (
+        N          => $self->N(),
+        sum        => $self->sum(),
+        mean       => $self->mean(),
+        stddev     => $self->stddev(),
+        stderr     => $self->stderr(),
+        min        => $self->min(),
+        max        => $self->max(),
+        variance   => $self->variance(),
+    );
+
+    if ($self->{keep_data}) {
+        %result = (%result,
+            (
+                q1      => $self->quartile(1),
+                median  => $self->median(),
+                q3      => $self->quartile(3),
+            )
+        );
+    }
+
+    if (exists $self->{percentile}) {
+        %result = (
+            %result,
+            percentile => $self->percentile($self->{percentile}),
+        );
+    }
+
+    if (exists $self->{quartile}) {
+        %result = (
+            %result,
+            quartile => $self->quartile($self->{quartile}),
+        );
+    }
+
+    return %result;
+}
+
+sub _format {
+  my ($self,$value,%opt) = @_;
+
+  my $format = $self->{format};
+
+  return sprintf( $format, $value );
+}
+
