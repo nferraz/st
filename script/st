@@ -41,6 +41,7 @@ GetOptions(
   'format|fmt|f=s',
   'no-header|nh',
   'transpose-output|transverse-output|to',
+  'separator|sep=s',
 
   # error handling
   'quiet|q',
@@ -71,42 +72,57 @@ my %special_parameters = map { $_ => $opt{$_} } grep { exists $opt{$_} } qw/perc
 my $st = App::St->new(%config, %special_parameters);
 
 my $n = 0;
-while (my $num = <>) {
-  chomp $num;
+while (my $line = <>) {
+  chomp $line;
 
+  my @nums = split $config{separator}, $line;
   $n++;
-  if (!$st->validate($num)) {
-      my $err = "Invalid value '$num' on input line $.\n";
-      if ($opt{strict}) {
-        die $err;
-      } elsif (!$opt{quiet}) {
-        warn $err;
-      }
-      next;
+  for my $num (@nums) {
+    if (!$st->validate($num)) {
+        my $err = "Invalid value '$num' on input line $.\n";
+        if ($opt{strict}) {
+          die $err;
+        } elsif (!$opt{quiet}) {
+          warn $err;
+        }
+        next;
+    }
   }
 
-  $st->process($num);
+  $st->process(@nums);
 }
 
-exit if $st->N() == 0;
+exit if $n == 0;
 
-my %result = $st->result();
+my @results = $st->result();
+# printf("DEBUG: RESULT\n");
+# map { print_result($_) } @results;
 
-my @opt = grep { exists $result{$_} } statistical_options(%opt);
+my $i = 0;
+for my $result (@results) {
+  my %result = %$result;
 
-if (scalar @opt == 1) {
-  print sprintf( $config{format}, $result{$opt[0]} ), "\n";
-  exit;
-}
+  my @opt = grep {exists $result{$_}} statistical_options(%opt);
 
-if ($config{'transpose-output'}) {
-  for my $opt (@opt) {
-    print "$opt$config{delimiter}" unless $config{'no-header'};
-    print sprintf( $config{format}, $result{$opt} ), "\n";
+  if (scalar @opt == 1) {
+    print sprintf($config{format}, $result{$opt[0]}), "\n";
+    exit;
   }
-} else {
-  print join($config{delimiter}, @opt), "\n" unless $config{'no-header'};
-  print join($config{delimiter}, map { sprintf ($config{format}, $result{$_}) } @opt), "\n";
+
+  if ($config{'transpose-output'}) {
+    print join($config{delimiter}, @opt), "\n" unless $i || $config{'no-header'};
+    print join($config{delimiter}, map {sprintf($config{format}, $result{$_})} @opt), "\n";
+  }
+  $i++;
+}
+
+if (!$config{'transpose-output'}) {
+  for my $opt (statistical_options(%opt)) {
+    my @values = map {sprintf($config{format}, $_->{$opt})} @results;
+    my $header = $config{'no-header'} ? '' : $opt . $config{delimiter};
+    my @formatted = map {sprintf($config{format}, $_)} @values;
+    printf "%s%s%s\n", $header, $config{delimiter}, join($config{delimiter}, @formatted);
+  }
 }
 
 exit;
@@ -120,6 +136,7 @@ sub get_config {
 
   my $delimiter  = $opt{'delimiter'} || "\t";
   my $format     = $opt{'format'}    || '%g';
+  my $separator  = $opt{'separator'} || "\t";
 
   if ($delimiter =~ /^\\[a-z]$/) {
     $delimiter = $delimiter eq '\t' ? "\t"
@@ -133,7 +150,7 @@ sub get_config {
     die "Invalid format: '$format'\n";
   }
 
-  return (%config, delimiter => $delimiter, format => $format);
+  return (%config, delimiter => $delimiter, format => $format, separator => $separator);
 
 }
 

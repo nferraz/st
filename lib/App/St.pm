@@ -41,6 +41,7 @@ sub new {
     M2         => 0,
     delimiter  => $delimiter,
     format     => $format,
+    calculated => [],
     data       => [],
   }, $class;
 }
@@ -58,50 +59,61 @@ sub validate {
 }
 
 sub process {
-  my ($self, $num) = @_;
+  my ($self, @values) = @_;
+  for (my $i = 0; $i < @values; $i++) {
+      my $num = $values[$i];
+      $self->{calculated}[$i] ||= {};
+      my $calculated = $self->{calculated}[$i];
 
-  die "Invalid input '$num'\n" if !$self->validate($num);
+      die "Invalid input '$num'\n" if !$self->validate($num);
 
-  $self->{N}++;
+      $calculated->{N}++;
 
-  $self->{sum} += $num;
+      $calculated->{sum} += $num;
+      $calculated->{sumsq} += $num * $num;
 
-  $self->{min} = $num if (!defined $self->{min} or $num < $self->{min});
-  $self->{max} = $num if (!defined $self->{max} or $num > $self->{max});
+      $calculated->{min} = $num if (!defined $calculated->{min} or $num < $calculated->{min});
+      $calculated->{max} = $num if (!defined $calculated->{max} or $num > $calculated->{max});
 
-  my $delta = $num - $self->{mean};
+      #my $delta = $num - $calculated->{mean};
 
-  $self->{mean} += $delta / $self->{N};
-  $self->{M2}   += $delta * ($num - $self->{mean});
+      #$calculated->{mean} += $delta / $calculated->{N};
+      #$calculated->{M2} += $delta * ($num - $calculated->{mean});
 
-  push( @{ $self->{data} }, $num ) if $self->{keep_data};
-
+      push(@{$calculated->{data}}, $num) if $self->{keep_data};
+  }
   return;
 }
 
 sub N {
-  return $_[0]->{N};
+  my $self = shift;
+  return map { ($_->{N})} @{$self->{calculated}};
 }
 
 sub sum {
-  return $_[0]->{sum};
+  my $self = shift;
+  return map { ($_->{sum})} @{$self->{calculated}};
 }
 
 sub min {
-  return $_[0]->{min};
+  my $self = shift;
+  return map { ($_->{min})} @{$self->{calculated}};
 }
 
 sub max {
-  return $_[0]->{max};
+  my $self = shift;
+  return map { ($_->{max})} @{$self->{calculated}};
 }
 
 sub mean {
   my ($self,%opt) = @_;
 
-  my $mean = $self->{mean};
+  return map {
+      my $mean = $_->{sum} / $_->{N};
 
-  return $opt{formatted} ? $self->_format($mean)
-                         : $mean;
+      return $opt{formatted} ? $self->_format($mean)
+          : $mean;
+  } @{$self->{calculated}};
 }
 
 sub quartile {
@@ -120,44 +132,49 @@ sub median {
 sub variance {
   my ($self,%opt) = @_;
 
-  my $N  = $self->{N};
-  my $M2 = $self->{M2};
+    my @variances = map {
+        my $N = $_->{N};
+        my $sumsq = $_->{sumsq};
+        my $sqsum = $_->{sum} * $_->{sum};
+        my $variance = $N > 2 ? ($sumsq - $sqsum / $N) / ($N - 1): undef;
+        ($opt{formatted} ? $self->_format($variance)
+            : $variance);
+    } @{$self->{calculated}};
 
-  my $variance = $N > 1 ? $M2 / ($N - 1) : undef;
-
-  return $opt{formatted} ? $self->_format($variance)
-                         : $variance;
 }
 
 sub stddev {
   my ($self,%opt) = @_;
 
-  my $variance = $self->variance();
+  my @variances = $self->variance();
 
-  my $stddev = defined $variance ? sqrt($variance) : undef;
-
-  return $opt{formatted} ? $self->_format($stddev)
-                         : $stddev;
+  return map {
+      my $variance = $_;
+      my $stddev = defined $variance ? sqrt($variance) : undef;
+      $opt{formatted} ? $self->_format($stddev)
+          : $stddev;
+  } @variances;
 }
 
 sub stderr {
   my ($self,%opt) = shift;
 
-  my $stddev = $self->stddev();
-  my $N      = $self->N();
+  my @stddev = $self->stddev();
+  my @N      = $self->N();
 
-  my $stderr  = defined $stddev ? $stddev/sqrt($N) : undef;
-
-  return $opt{formatted} ? $self->_format($stderr)
-                         : $stderr;
+  my @stderr;
+  for (my $i = 0; $i < max(@stddev, @N); $i++) {
+      my $stderr = defined $stddev[$i] ? $stddev[$i]/sqrt($N[$i]) : undef;
+      push @stderr, $opt{formatted} ? $self->_format($stderr)
+          : $stderr;
+  }
+    return @stderr;
 }
 
 sub percentile {
     my ($self, $p, %opt) = @_;
 
-    my $data = $self->{data};
-
-    if (!$self->{keep_data} or scalar @{$data} == 0) {
+    if (!$self->{keep_data}) {
         die "Can't get percentile from empty dataset\n";
     }
 
@@ -165,62 +182,72 @@ sub percentile {
         die "Invalid percentile '$p'\n";
     }
 
-    if (!$self->{_is_sorted_}) {
-        $data = [ sort {$a <=> $b} @{ $data } ];
-        $self->{data} = $data;
-        $self->{_is_sorted_} = 1;
-    }
+    map {
+      my $data = $_->{data};
 
-    my $N = $self->N();
-    my $idx = ($N - 1) * $p / 100;
+      if (!$_->{_is_sorted_}) {
+          $data = [ sort {$a <=> $b} @{$data} ];
+          $_->{data} = $data;
+          $_->{_is_sorted_} = 1;
+          my $N = $_->{N};
+          my $idx = ($N - 1) * $p / 100;
+          my $percentile =
+              int($idx) == $idx ? $data->[$idx]
+                  : ($data->[$idx] + $data->[$idx + 1]) / 2;
 
-    my $percentile =
-        int($idx) == $idx ? $data->[$idx]
-                          : ($data->[$idx] + $data->[$idx+1]) / 2;
-
-    return $opt{formatted} ? _format($percentile)
-                           : $percentile;
+          ($opt{formatted} ? _format($percentile)
+              : $percentile);
+      }
+    } @{$self->{calculated}};
 }
 
 sub result {
     my $self = shift;
 
-    my %result = (
-        N          => $self->N(),
-        sum        => $self->sum(),
-        mean       => $self->mean(),
-        stddev     => $self->stddev(),
-        stderr     => $self->stderr(),
-        min        => $self->min(),
-        max        => $self->max(),
-        variance   => $self->variance(),
-    );
-
-    if ($self->{keep_data}) {
-        %result = (%result,
-            (
-                q1      => $self->quartile(1),
-                median  => $self->median(),
-                q3      => $self->quartile(3),
-            )
+    my @result = map {
+        my %result = (
+            N        => $_->{N},
+            sum      => $_->{sum},
+            mean     => $_->{N} ? $_->{sum} / $_->{N} : undef,
+            stderr   => $_->{stderr},
+            min      => $_->{min},
+            max      => $_->{max},
+            variance => $_->{variance},
         );
+
+        if ($self->{keep_data}) {
+            %result = (%result,
+                (
+                    q1     => $_->quartile(1),
+                    median => $_->median(),
+                    q3     => $_->quartile(3),
+                )
+            );
+        }
+
+        if (exists $self->{percentile}) {
+            %result = (
+                %result,
+                percentile => $self->percentile($self->{percentile}),
+            );
+        }
+
+        if (exists $self->{quartile}) {
+            %result = (
+                %result,
+                quartile => $self->quartile($self->{quartile}),
+            );
+        }
+        (\%result);
+    } @{$self->{calculated}};
+
+    my @stddev = $self->stddev();
+
+    for (my $i = 0; $i < @result; $i++) {
+        $result[$i]{stddev} = $stddev[$i];
     }
 
-    if (exists $self->{percentile}) {
-        %result = (
-            %result,
-            percentile => $self->percentile($self->{percentile}),
-        );
-    }
-
-    if (exists $self->{quartile}) {
-        %result = (
-            %result,
-            quartile => $self->quartile($self->{quartile}),
-        );
-    }
-
-    return %result;
+    @result;
 }
 
 sub _format {
