@@ -99,29 +99,38 @@ my @results = $st->result();
 # map { print_result($_) } @results;
 
 my $i = 0;
+my @selected_opts = statistical_options(%opt);
+
 for my $result (@results) {
   my %result = %$result;
 
-  my @opt = grep {exists $result{$_}} statistical_options(%opt);
-
-  if (scalar @opt == 1) {
-    print sprintf($config{format}, $result{$opt[0]}), "\n";
-    exit;
-  }
+  my @opt = grep {exists $result{$_}} @selected_opts;
 
   if ($config{'transpose-output'}) {
-    print join($config{delimiter}, @opt), "\n" unless $i || $config{'no-header'};
-    print join($config{delimiter}, map {sprintf($config{format}, $result{$_})} @opt), "\n";
+
+    if (scalar @opt == 1) {
+      print sprintf($config{format}, $result{$opt[0]}), "\n";
+    } else {
+      print join($config{delimiter}, @opt), "\n" unless $i || $config{'no-header'};
+      print join($config{delimiter}, map {sprintf($config{format}, $result{$_})} @opt), "\n";
+    }
   }
   $i++;
 }
 
 if (!$config{'transpose-output'}) {
-  for my $opt (statistical_options(%opt)) {
+  if (@selected_opts != 1) {
+    for my $opt (statistical_options(%opt)) {
+      my @header = $config{'no-header'} ? () : ($opt);
+      my @formatted = (@header, map {sprintf($config{format}, $_->{$opt})} @results);
+      printf "%s\n", join($config{delimiter}, @formatted);
+    }
+  } else {
+    my $opt = $selected_opts[0];
     my @values = map {sprintf($config{format}, $_->{$opt})} @results;
-    my $header = $config{'no-header'} ? '' : $opt . $config{delimiter};
-    my @formatted = map {sprintf($config{format}, $_)} @values;
-    printf "%s%s%s\n", $header, $config{delimiter}, join($config{delimiter}, @formatted);
+    my @header = $config{'no-header'} ? () : $opt;
+    my @formatted = (@header, @values);
+    printf "%s\n", join($config{delimiter}, @formatted);
   }
 }
 
