@@ -42,6 +42,7 @@ sub new {
     delimiter  => $delimiter,
     format     => $format,
     data       => [],
+    product    => 1,
   }, $class;
 }
 
@@ -74,6 +75,8 @@ sub process {
   $self->{mean} += $delta / $self->{N};
   $self->{M2}   += $delta * ($num - $self->{mean});
 
+  $self->{product} *= $num;
+
   push( @{ $self->{data} }, $num ) if $self->{keep_data};
 
   return;
@@ -102,6 +105,10 @@ sub mean {
 
   return $opt{formatted} ? $self->_format($mean)
                          : $mean;
+}
+
+sub geomean {
+  return $_[0]->{product} ** (1.0 / $_[0]->{N});
 }
 
 sub quartile {
@@ -194,6 +201,7 @@ sub result {
         min        => $self->min(),
         max        => $self->max(),
         variance   => $self->variance(),
+        geomean    => $self->geomean(),
     );
 
     if ($self->{keep_data}) {
@@ -290,6 +298,8 @@ App::St provides the core functionality of the L<st> application.
 =head2 q3
 
 =head2 max
+
+=head2 geomean
 
 =head1 AUTHOR
 
