@@ -16,7 +16,7 @@ GetOptions(
   \%opt,
 
   # functions
-  'N|n|count',
+  'N|count',
   'mean|avg|m',
   'stddev|sd',
   'stderr|sem|se',
