@@ -22,6 +22,7 @@ GetOptions(
   'stderr|sem|se',
   'sum|s',
   'variance|var',
+  'geomean|geo',
 
   'min|q0',
   'q1',
@@ -142,9 +143,9 @@ sub statistical_options {
 
   # predefined sets
   my %predefined = (
-    complete => [ qw/N min q1 median q3 max sum mean stddev stderr variance percentile quartile/ ],
+    complete => [ qw/N min q1 median q3 max sum mean geomean stddev stderr variance percentile quartile/ ],
     summary  => [ qw/min q1 median q3 max/ ],
-    default  => [ qw/N min max sum mean stddev/ ],
+    default  => [ qw/N min max sum mean geomean stddev/ ],
   );
 
   # selected options
@@ -190,6 +191,7 @@ file or standard input.
   --stderr|sem|se       # standard error of mean
   --sum|s               # sum of elements of the sample
   --variance|var        # variance
+  --geomean|geo         # geometric mean
 
 The following options require that the whole dataset is stored in
 memory, which can be problematic for huge datasets:
@@ -202,7 +204,7 @@ memory, which can be problematic for huge datasets:
 
 If no functions are selected, C<st> will print the default output:
 
-    N     min  max  sum  mean  stddev
+    N     min  max  sum  mean  geomean  stddev
 
 You can also use the following predefined sets of functions:
 
