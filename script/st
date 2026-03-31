@@ -8,6 +8,7 @@ use warnings;
 use Data::Dumper;
 use Getopt::Long;
 use Pod::Usage;
+use Scalar::Util qw(looks_like_number);
 
 use App::St;
 
@@ -70,12 +71,10 @@ my %special_parameters = map { $_ => $opt{$_} } grep { exists $opt{$_} } qw/perc
 
 my $st = App::St->new(%config, %special_parameters);
 
-my $n = 0;
 while (my $num = <>) {
   chomp $num;
 
-  $n++;
-  if (!$st->validate($num)) {
+  if (!looks_like_number($num)) {
       my $err = "Invalid value '$num' on input line $.\n";
       if ($opt{strict}) {
         die $err;
